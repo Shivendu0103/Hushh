@@ -1,0 +1,242 @@
+/* 🔮 GLASSMORPHISM EFFECTS FOR HUSHH */
+
+/* Base glass effect */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Glass variants */
+.glass-light {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.glass-heavy {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-colored {
+  background: linear-gradient(135deg, 
+    rgba(131, 56, 236, 0.1), 
+    rgba(255, 0, 110, 0.1)
+  );
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(131, 56, 236, 0.2);
+}
+
+/* Hover effects */
+.glass-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-hover:hover {
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 15px 35px rgba(131, 56, 236, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Interactive glass */
+.glass-interactive {
+  @apply glass-hover cursor-pointer;
+  transition: all 0.2s ease;
+}
+
+.glass-interactive:active {
+  transform: translateY(0);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Glass with patterns */
+.glass-pattern {
+  @apply glass;
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-pattern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, 
+    rgba(255, 255, 255, 0.1) 25%, 
+    transparent 25%, 
+    transparent 75%, 
+    rgba(255, 255, 255, 0.1) 75%
+  );
+  background-size: 20px 20px;
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+/* Frosted glass effect */
+.glass-frosted {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Gradient glass */
+.glass-gradient {
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  backdrop-filter: blur(20px);
+  border: 1px solid;
+  border-image: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.3),
+    rgba(255, 255, 255, 0.1)
+  ) 1;
+}
+
+/* Morphing glass (for chaos mode) */
+.glass-morph {
+  @apply glass;
+  animation: morphGlass 3s ease-in-out infinite;
+}
+
+@keyframes morphGlass {
+  0%, 100% {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+  25% {
+    background: rgba(131, 56, 236, 0.15);
+    border-color: rgba(131, 56, 236, 0.3);
+  }
+  50% {
+    background: rgba(255, 0, 110, 0.15);
+    border-color: rgba(255, 0, 110, 0.3);
+  }
+  75% {
+    background: rgba(58, 134, 255, 0.15);
+    border-color: rgba(58, 134, 255, 0.3);
+  }
+}
+
+/* Glass panels with depth */
+.glass-panel {
+  @apply glass;
+  position: relative;
+}
+
+.glass-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.4), 
+    transparent
+  );
+}
+
+.glass-panel::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, 
+    rgba(255, 255, 255, 0.1), 
+    transparent
+  );
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Pulsing glass effect */
+.glass-pulse {
+  @apply glass;
+  animation: glassPulse 2s ease-in-out infinite;
+}
+
+@keyframes glassPulse {
+  0%, 100% {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(131, 56, 236, 0.1);
+  }
+  50% {
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 32px rgba(131, 56, 236, 0.3);
+  }
+}
+
+/* Glass loading effect */
+.glass-loading {
+  @apply glass;
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.2), 
+    transparent
+  );
+  animation: glassShimmer 2s ease-in-out infinite;
+}
+
+@keyframes glassShimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Mobile glass optimizations */
+@media (max-width: 768px) {
+  .glass,
+  .glass-light,
+  .glass-heavy,
+  .glass-frosted {
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+  }
+  
+  .glass-hover:hover {
+    transform: none; /* Disable hover transforms on mobile */
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .glass-morph,
+  .glass-pulse,
+  .glass-loading::after {
+    animation: none;
+  }
+  
+  .glass-hover {
+    transition: none;
+  }
+}

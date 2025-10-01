@@ -1,0 +1,228 @@
+/* 🧩 COMPONENT-SPECIFIC STYLES */
+
+/* 🪪 Card Components */
+.card-base {
+  @apply rounded-2xl p-6 transition-all duration-300;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur));
+}
+
+.card-hover {
+  @apply transform hover:scale-105 hover:-translate-y-1;
+  transition: all var(--animation-normal);
+}
+
+.card-hover:hover {
+  box-shadow: var(--shadow-glow);
+}
+
+/* 🔘 Button Components */
+.btn-base {
+  @apply px-6 py-3 rounded-xl font-semibold transition-all duration-300;
+  @apply flex items-center justify-center space-x-2;
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+.btn-primary {
+  @apply btn-base text-white;
+  background: var(--gradient-primary);
+  box-shadow: var(--shadow-soft);
+}
+
+.btn-primary:hover {
+  @apply transform scale-105;
+  box-shadow: var(--shadow-neon);
+}
+
+.btn-secondary {
+  @apply btn-base text-white border border-white/20;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+}
+
+.btn-secondary:hover {
+  @apply bg-white/20 border-white/30;
+}
+
+.btn-ghost {
+  @apply btn-base text-gray-300 hover:text-white hover:bg-white/10;
+}
+
+.btn-danger {
+  @apply btn-base text-white bg-gradient-to-r from-red-500 to-pink-500;
+}
+
+/* 📝 Form Components */
+.input-base {
+  @apply w-full px-4 py-3 rounded-xl transition-all duration-300;
+  @apply text-white placeholder-gray-400;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur));
+}
+
+.input-base:focus {
+  @apply ring-2 ring-purple-500/20;
+  border-color: var(--hushh-primary);
+  box-shadow: var(--shadow-glow);
+}
+
+.input-error {
+  @apply border-red-500 ring-2 ring-red-500/20;
+}
+
+.label-base {
+  @apply block text-sm font-medium text-gray-300 mb-2;
+}
+
+/* 🔔 Notification Components */
+.notification-base {
+  @apply p-4 rounded-2xl backdrop-blur-lg border shadow-2xl;
+  @apply flex items-center space-x-3;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+}
+
+.notification-success {
+  @apply notification-base border-green-500/30;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(16, 185, 129, 0.1));
+}
+
+.notification-error {
+  @apply notification-base border-red-500/30;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(244, 63, 94, 0.1));
+}
+
+.notification-info {
+  @apply notification-base border-blue-500/30;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(14, 165, 233, 0.1));
+}
+
+/* 📱 Navigation Components */
+.nav-link {
+  @apply px-4 py-2 rounded-xl transition-all duration-300;
+  @apply flex items-center space-x-2 font-medium;
+}
+
+.nav-link-active {
+  @apply nav-link text-purple-300 border border-purple-500/30;
+  background: rgba(131, 56, 236, 0.2);
+  box-shadow: var(--shadow-glow);
+}
+
+.nav-link-inactive {
+  @apply nav-link text-gray-300 hover:text-white hover:bg-white/10;
+}
+
+/* 💬 Message Components */
+.message-bubble {
+  @apply max-w-xs lg:max-w-md p-3 rounded-2xl break-words;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.message-bubble-own {
+  @apply message-bubble text-white ml-auto;
+  background: var(--gradient-primary);
+}
+
+.message-bubble-other {
+  @apply message-bubble text-white;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur));
+}
+
+/* 🏆 Achievement Components */
+.achievement-badge {
+  @apply p-4 rounded-xl text-center transition-all duration-300;
+  @apply hover:scale-105 cursor-pointer;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur));
+}
+
+.achievement-badge:hover {
+  box-shadow: var(--shadow-glow);
+  background: rgba(131, 56, 236, 0.2);
+}
+
+/* 📊 Progress Components */
+.progress-bar {
+  @apply w-full h-2 bg-gray-700 rounded-full overflow-hidden;
+}
+
+.progress-fill {
+  @apply h-full rounded-full transition-all duration-500;
+  background: var(--gradient-primary);
+}
+
+/* 🎨 Avatar Components */
+.avatar-base {
+  @apply rounded-full object-cover border-4 border-transparent;
+  background: var(--gradient-primary);
+  padding: 2px;
+}
+
+.avatar-online::after {
+  content: '';
+  @apply absolute bottom-0 right-0 w-4 h-4 bg-green-500 rounded-full;
+  @apply border-4 border-gray-900;
+}
+
+/* 🔍 Search Components */
+.search-container {
+  @apply relative;
+}
+
+.search-input {
+  @apply input-base pl-10;
+}
+
+.search-icon {
+  @apply absolute left-3 top-1/2 transform -translate-y-1/2;
+  @apply text-gray-400 w-5 h-5;
+}
+
+/* 📺 Media Components */
+.media-container {
+  @apply rounded-xl overflow-hidden relative;
+}
+
+.media-overlay {
+  @apply absolute inset-0 bg-black/50 flex items-center justify-center;
+  @apply opacity-0 hover:opacity-100 transition-opacity duration-300;
+}
+
+/* 🎮 Gaming/XP Components */
+.xp-bar {
+  @apply progress-bar h-3;
+}
+
+.level-badge {
+  @apply px-3 py-1 rounded-full text-xs font-bold;
+  background: var(--gradient-secondary);
+}
+
+/* 🌈 Special Effects */
+.glow-effect {
+  box-shadow: var(--shadow-glow);
+}
+
+.neon-effect {
+  box-shadow: var(--shadow-neon);
+}
+
+.pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulseGlow {
+  from {
+    box-shadow: var(--shadow-glow);
+  }
+  to {
+    box-shadow: var(--shadow-neon);
+  }
+}
