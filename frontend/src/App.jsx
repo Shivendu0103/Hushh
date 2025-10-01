@@ -8,6 +8,8 @@ import RegisterForm from './components/auth/RegisterForm'
 import Header from './components/common/Header'
 import PostFeed from './components/posts/PostFeed'
 import Messages from './pages/Messages'
+import Profile from './pages/Profile'
+import Settings from './pages/Settings'
 import FloatingButton from './components/ui/FloatingButton'
 import LiquidBackground from './components/ui/LiquidBackground'
 
@@ -40,8 +42,8 @@ function App() {
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/messages" element={<Messages />} />
-                    <Route path="/profile" element={<div className="p-8 text-center text-white">Profile Coming Soon! 👤</div>} />
-                    <Route path="/settings" element={<div className="p-8 text-center text-white">Settings Coming Soon! ⚙️</div>} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/settings" element={<Settings />} />
                   </Routes>
                 </ProtectedRoute>
               } />
