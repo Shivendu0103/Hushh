@@ -1,0 +1,99 @@
+/* @tailwind directives are processed by PostCSS */
+/* stylelint-disable at-rule-no-unknown */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* stylelint-enable at-rule-no-unknown */
+
+/* 🎨 HUSHH CUSTOM GLASSMORPHISM STYLES */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.glass-hover {
+  transition: all 0.3s ease;
+}
+
+.glass-hover:hover {
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+/* 🌈 NEON GRADIENT ANIMATIONS */
+.neon-gradient {
+  background: linear-gradient(135deg, #ff006e, #8338ec, #3a86ff, #06ffa5);
+  background-size: 400% 400%;
+  animation: gradient 3s ease infinite;
+}
+
+.neon-text {
+  background: linear-gradient(135deg, #ff006e, #8338ec, #3a86ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+}
+
+/* ✨ GLOW EFFECTS */
+.glow-pink {
+  box-shadow: 0 0 20px rgba(255, 0, 110, 0.5),
+              0 0 40px rgba(255, 0, 110, 0.3),
+              0 0 60px rgba(255, 0, 110, 0.1);
+}
+
+.glow-purple {
+  box-shadow: 0 0 20px rgba(131, 56, 236, 0.5),
+              0 0 40px rgba(131, 56, 236, 0.3),
+              0 0 60px rgba(131, 56, 236, 0.1);
+}
+
+/* 📱 CUSTOM SCROLLBAR */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #ff006e, #8338ec);
+  border-radius: 10px;
+}
+
+/* 🎭 CHAOS MODE (Toggle for wild effects) */
+.chaos-mode {
+  animation: chaosGlow 0.5s infinite alternate;
+}
+
+@keyframes chaosGlow {
+  0% { filter: hue-rotate(0deg) saturate(1); }
+  100% { filter: hue-rotate(360deg) saturate(2); }
+}
+
+/* 🚀 SMOOTH ANIMATIONS */
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-neon {
+  animation: pulse-neon 2s ease-in-out infinite;
+}
+
+@keyframes pulse-neon {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(255, 0, 110, 0.5),
+                0 0 40px rgba(131, 56, 236, 0.3);
+  }
+  50% { 
+    box-shadow: 0 0 30px rgba(255, 0, 110, 0.8),
+                0 0 60px rgba(131, 56, 236, 0.6);
+  }
+}

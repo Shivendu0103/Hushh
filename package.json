@@ -1,0 +1,19 @@
+{
+  "name": "hushh",
+  "version": "1.0.0",
+  "description": "Gen Z Social Media Platform with Glassmorphism UI",
+  "scripts": {
+    "install-all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd backend && npm run dev",
+    "client": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && npm start"
+  },
+  "keywords": ["social-media", "react", "nodejs", "glassmorphism", "gen-z"],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

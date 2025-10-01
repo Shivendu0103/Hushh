@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Environment variables
+.env
+*/.env
+.env.local
+.env.production
+
+# Build outputs
+dist/
+build/
+*/dist/
+*/build/
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Database
+*.db
+*.sqlite
+
+# Uploads
+uploads/
+temp/
+
+# Testing
+coverage/
