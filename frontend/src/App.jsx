@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './context/AuthContext'
+import { SocketProvider } from './context/SocketContext'  // Add this import
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import LoginForm from './components/auth/LoginForm'
 import RegisterForm from './components/auth/RegisterForm'
@@ -31,36 +32,38 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Router>
-          <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
-            <Routes>
-              <Route path="/login" element={<LoginForm />} />
-              <Route path="/register" element={<RegisterForm />} />
-              <Route path="/*" element={
-                <ProtectedRoute>
-                  <Header />
-                  <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/messages" element={<Messages />} />
-                    <Route path="/profile" element={<Profile />} />
-                    <Route path="/settings" element={<Settings />} />
-                  </Routes>
-                </ProtectedRoute>
-              } />
-            </Routes>
-            <Toaster 
-              position="bottom-right"
-              toastOptions={{
-                style: {
-                  background: 'rgba(20, 20, 40, 0.9)',
-                  color: '#fff',
-                  border: '1px solid #8338ec',
-                  backdropFilter: 'blur(15px)'
-                }
-              }}
-            />
-          </div>
-        </Router>
+        <SocketProvider>  {/* Wrap with SocketProvider */}
+          <Router>
+            <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+              <Routes>
+                <Route path="/login" element={<LoginForm />} />
+                <Route path="/register" element={<RegisterForm />} />
+                <Route path="/*" element={
+                  <ProtectedRoute>
+                    <Header />
+                    <Routes>
+                      <Route path="/" element={<Home />} />
+                      <Route path="/messages" element={<Messages />} />
+                      <Route path="/profile" element={<Profile />} />
+                      <Route path="/settings" element={<Settings />} />
+                    </Routes>
+                  </ProtectedRoute>
+                } />
+              </Routes>
+              <Toaster 
+                position="bottom-right"
+                toastOptions={{
+                  style: {
+                    background: 'rgba(20, 20, 40, 0.9)',
+                    color: '#fff',
+                    border: '1px solid #8338ec',
+                    backdropFilter: 'blur(15px)'
+                  }
+                }}
+              />
+            </div>
+          </Router>
+        </SocketProvider>  {/* Close SocketProvider */}
       </AuthProvider>
     </QueryClientProvider>
   )

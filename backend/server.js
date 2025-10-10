@@ -15,6 +15,10 @@ const userRoutes = require('./src/routes/users')
 const postRoutes = require('./src/routes/posts')
 const messageRoutes = require('./src/routes/messages')
 
+// Import models
+const Message = require('./src/models/Message')
+const User = require('./src/models/User')
+
 const app = express()
 const server = http.createServer(app)
 
@@ -58,44 +62,92 @@ io.on('connection', (socket) => {
   console.log(`🔗 User connected: ${socket.id}`)
 
   // User joins with their ID
-  socket.on('user_join', (userId) => {
-    activeUsers.set(socket.id, { userId, socketId: socket.id })
-    socket.join(`user_${userId}`)
-    
-    // Broadcast user online status
-    socket.broadcast.emit('user_online', userId)
-    
-    console.log(`👋 User ${userId} joined`)
+  socket.on('user_join', async (userId) => {
+    try {
+      activeUsers.set(socket.id, { userId, socketId: socket.id })
+      socket.join(`user_${userId}`)
+      
+      // Update user online status in database
+      await User.findByIdAndUpdate(userId, { 
+        isOnline: true,
+        lastSeen: new Date() 
+      })
+      
+      // Broadcast user online status
+      socket.broadcast.emit('user_online', userId)
+      
+      console.log(`👋 User ${userId} joined`)
+    } catch (error) {
+      console.error('User join error:', error)
+    }
   })
 
-  // Real-time messaging
+  // Real-time messaging with database persistence
   socket.on('send_message', async (data) => {
     try {
       const { recipientId, senderId, content, type = 'text' } = data
       
-      // Save message to database (implement this)
-      const message = {
-        id: Date.now(),
+      // Save message to database
+      const newMessage = new Message({
+        sender: senderId,
+        recipient: recipientId,
+        content,
+        messageType: type,
+        status: 'sent'
+      })
+      
+      const savedMessage = await newMessage.save()
+      await savedMessage.populate('sender', 'username profile')
+      await savedMessage.populate('recipient', 'username profile')
+
+      // Create message object for real-time transmission
+      const messageForSocket = {
+        _id: savedMessage._id,
         senderId,
         recipientId,
         content,
         type,
-        timestamp: new Date(),
+        timestamp: savedMessage.createdAt,
+        sender: data.sender,
         read: false
       }
 
       // Send to recipient if online
-      io.to(`user_${recipientId}`).emit('new_message', {
-        ...message,
-        sender: data.sender
+      io.to(`user_${recipientId}`).emit('new_message', messageForSocket)
+
+      // Send back to sender for confirmation
+      socket.emit('message_sent', { 
+        messageId: savedMessage._id, 
+        status: 'delivered',
+        message: messageForSocket
+      })
+      
+      console.log(`💬 Message saved and sent from ${senderId} to ${recipientId}`)
+    } catch (error) {
+      console.error('Send message error:', error)
+      socket.emit('message_error', { error: error.message })
+    }
+  })
+
+  // Mark message as read
+  socket.on('mark_message_read', async (data) => {
+    try {
+      const { messageId, userId } = data
+      
+      await Message.findByIdAndUpdate(messageId, {
+        status: 'read',
+        $push: { readBy: { user: userId, readAt: new Date() } }
       })
 
-      // Confirm delivery to sender
-      socket.emit('message_sent', { messageId: message.id, status: 'delivered' })
+      // Notify sender that message was read
+      const message = await Message.findById(messageId)
+      io.to(`user_${message.sender}`).emit('message_read', {
+        messageId,
+        readBy: userId
+      })
       
-      console.log(`💬 Message from ${senderId} to ${recipientId}`)
     } catch (error) {
-      socket.emit('message_error', { error: error.message })
+      console.error('Mark read error:', error)
     }
   })
 
@@ -145,13 +197,23 @@ io.on('connection', (socket) => {
   })
 
   // User disconnect
-  socket.on('disconnect', () => {
+  socket.on('disconnect', async () => {
     const user = activeUsers.get(socket.id)
     if (user) {
-      // Broadcast user offline status
-      socket.broadcast.emit('user_offline', user.userId)
-      activeUsers.delete(socket.id)
-      console.log(`👋 User ${user.userId} disconnected`)
+      try {
+        // Update user offline status in database
+        await User.findByIdAndUpdate(user.userId, { 
+          isOnline: false,
+          lastSeen: new Date() 
+        })
+        
+        // Broadcast user offline status
+        socket.broadcast.emit('user_offline', user.userId)
+        activeUsers.delete(socket.id)
+        console.log(`👋 User ${user.userId} disconnected`)
+      } catch (error) {
+        console.error('User disconnect error:', error)
+      }
     }
     console.log(`🔌 Socket disconnected: ${socket.id}`)
   })

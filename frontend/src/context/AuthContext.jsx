@@ -1,89 +1,143 @@
-import { createContext, useContext, useReducer, useEffect } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
 const AuthContext = createContext()
 
-const initialState = {
-  user: null,
-  token: localStorage.getItem('hushh_token'),
-  loading: false,
-  isAuthenticated: !!localStorage.getItem('hushh_token'),
-}
-
-const authReducer = (state, action) => {
-  switch (action.type) {
-    case 'AUTH_START':
-      return { ...state, loading: true }
-    
-    case 'AUTH_SUCCESS':
-      return {
-        ...state,
-        loading: false,
-        isAuthenticated: true,
-        user: action.payload.user,
-        token: action.payload.token,
-      }
-    
-    case 'AUTH_FAIL':
-      return {
-        ...state,
-        loading: false,
-        isAuthenticated: false,
-        user: null,
-        token: null,
-      }
-    
-    case 'LOGOUT':
-      return {
-        ...state,
-        user: null,
-        token: null,
-        isAuthenticated: false,
-      }
-    
-    default:
-      return state
-  }
-}
-
 export const AuthProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(authReducer, initialState)
+  const [user, setUser] = useState(null)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  // Check for existing token on app load
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem('hushh_token')
+      
+      if (token && token !== 'demo-token-123') {
+        try {
+          // Verify token with backend
+          const response = await fetch(
+            `${import.meta.env.VITE_API_URL}/auth/me`,
+            {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            }
+          )
+
+          if (response.ok) {
+            const data = await response.json()
+            setUser(data.user)
+            setIsAuthenticated(true)
+            console.log('✅ User authenticated:', data.user.username)
+          } else {
+            // Token is invalid, clear it
+            localStorage.removeItem('hushh_token')
+            localStorage.removeItem('hushh_user')
+          }
+        } catch (error) {
+          console.error('Auth check error:', error)
+          localStorage.removeItem('hushh_token')
+          localStorage.removeItem('hushh_user')
+        }
+      } else {
+        // Remove dummy token
+        localStorage.removeItem('hushh_token')
+        localStorage.removeItem('hushh_user')
+      }
+      
+      setLoading(false)
+    }
+
+    checkAuth()
+  }, [])
 
   // Login function
-  const login = async (credentials) => {
+  const login = async (email, password) => {
     try {
-      dispatch({ type: 'AUTH_START' })
+      setLoading(true)
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      console.log('🔍 Calling login API:', `${import.meta.env.VITE_API_URL}/auth/login`)
       
-      const mockUser = {
-        id: '1',
-        username: credentials.email.split('@')[0],
-        email: credentials.email,
-        profile: {
-          displayName: 'Demo User',
-          avatar: null
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/login`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
         }
+      )
+
+      const data = await response.json()
+      console.log('🔍 Login response:', data)
+
+      if (response.ok && data.success) {
+        // Store real JWT token
+        localStorage.setItem('hushh_token', data.token)
+        localStorage.setItem('hushh_user', JSON.stringify(data.user))
+        
+        setUser(data.user)
+        setIsAuthenticated(true)
+        
+        toast.success(data.message || `Welcome back, ${data.user.username}! 🔥`)
+        console.log('✅ Login successful, real token:', data.token.substring(0, 20) + '...')
+        
+        return { success: true }
+      } else {
+        toast.error(data.message || 'Login failed')
+        return { success: false, message: data.message }
       }
-      
-      const mockToken = 'demo-token-123'
-      
-      localStorage.setItem('hushh_token', mockToken)
-      localStorage.setItem('hushh_user', JSON.stringify(mockUser))
-      
-      dispatch({ 
-        type: 'AUTH_SUCCESS', 
-        payload: { user: mockUser, token: mockToken } 
-      })
-      
-      toast.success('🔥 Welcome back to Hushh!')
-      return { success: true }
-      
     } catch (error) {
-      dispatch({ type: 'AUTH_FAIL' })
-      toast.error('Login failed')
-      return { success: false, message: 'Login failed' }
+      console.error('Login error:', error)
+      toast.error('Network error during login')
+      return { success: false, message: 'Network error' }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Register function
+  const register = async (username, email, password, displayName) => {
+    try {
+      setLoading(true)
+      
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/register`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, email, password, displayName })
+        }
+      )
+
+      const data = await response.json()
+
+      if (response.ok && data.success) {
+        // Store real JWT token
+        localStorage.setItem('hushh_token', data.token)
+        localStorage.setItem('hushh_user', JSON.stringify(data.user))
+        
+        setUser(data.user)
+        setIsAuthenticated(true)
+        
+        toast.success(data.message || `Welcome to Hushh, ${data.user.username}! 🎉`)
+        console.log('✅ Registration successful, real token:', data.token.substring(0, 20) + '...')
+        
+        return { success: true }
+      } else {
+        toast.error(data.message || 'Registration failed')
+        return { success: false, message: data.message }
+      }
+    } catch (error) {
+      console.error('Registration error:', error)
+      toast.error('Network error during registration')
+      return { success: false, message: 'Network error' }
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -91,18 +145,21 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('hushh_token')
     localStorage.removeItem('hushh_user')
-    dispatch({ type: 'LOGOUT' })
-    toast.success('👋 See you later!')
+    setUser(null)
+    setIsAuthenticated(false)
+    toast.success('Logged out successfully! 👋')
+    console.log('✅ User logged out')
   }
 
   return (
-    <AuthContext.Provider
-      value={{
-        ...state,
-        login,
-        logout,
-      }}
-    >
+    <AuthContext.Provider value={{
+      user,
+      isAuthenticated,
+      loading,
+      login,
+      register,
+      logout
+    }}>
       {children}
     </AuthContext.Provider>
   )
