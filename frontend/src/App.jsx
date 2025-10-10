@@ -15,13 +15,13 @@ import LiquidBackground from './components/ui/LiquidBackground'
 
 function Home() {
   return (
-    <>
+    <div className="min-h-screen relative">
       <LiquidBackground />
       <div className="relative z-10 container mx-auto px-4 py-8 max-w-2xl">
         <PostFeed />
       </div>
       <FloatingButton onChaosMode={() => console.log('Chaos!')} />
-    </>
+    </div>
   )
 }
 
@@ -48,7 +48,17 @@ function App() {
                 </ProtectedRoute>
               } />
             </Routes>
-            <Toaster position="bottom-right" />
+            <Toaster 
+              position="bottom-right"
+              toastOptions={{
+                style: {
+                  background: 'rgba(20, 20, 40, 0.9)',
+                  color: '#fff',
+                  border: '1px solid #8338ec',
+                  backdropFilter: 'blur(15px)'
+                }
+              }}
+            />
           </div>
         </Router>
       </AuthProvider>

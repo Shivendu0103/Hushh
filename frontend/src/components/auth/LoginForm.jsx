@@ -3,9 +3,6 @@ import { motion } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import { Mail, Lock, Eye, EyeOff, Zap } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
-
-import GlassCard from '../ui/GlassCard'
-import NeonButton from '../ui/NeonButton'
 import { useAuth } from '../../context/AuthContext'
 
 const LoginForm = () => {
@@ -35,9 +32,8 @@ const LoginForm = () => {
         transition={{ type: "spring", stiffness: 100, damping: 15 }}
         className="w-full max-w-md"
       >
-        <GlassCard 
-          className="p-8 space-y-6" 
-          variant="neon"
+        <div 
+          className="glass glass-hover p-8 space-y-6 rounded-3xl" 
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
@@ -47,7 +43,6 @@ const LoginForm = () => {
               className="text-4xl font-black neon-text"
               animate={isHovered ? { 
                 scale: [1, 1.05, 1],
-                textShadow: ["0 0 20px #ff006e", "0 0 40px #8338ec", "0 0 20px #ff006e"]
               } : {}}
               transition={{ duration: 2, repeat: isHovered ? Infinity : 0 }}
             >
@@ -74,13 +69,7 @@ const LoginForm = () => {
                     }
                   })}
                   type="email"
-                  className="
-                    w-full pl-10 pr-4 py-3 rounded-xl
-                    bg-white/10 backdrop-blur-lg border border-white/20
-                    text-white placeholder-gray-400
-                    focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20
-                    transition-all duration-300
-                  "
+                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/10 backdrop-blur-lg border border-white/20 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300"
                   placeholder="Enter your email"
                 />
               </div>
@@ -111,13 +100,7 @@ const LoginForm = () => {
                     }
                   })}
                   type={showPassword ? 'text' : 'password'}
-                  className="
-                    w-full pl-10 pr-12 py-3 rounded-xl
-                    bg-white/10 backdrop-blur-lg border border-white/20
-                    text-white placeholder-gray-400
-                    focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20
-                    transition-all duration-300
-                  "
+                  className="w-full pl-10 pr-12 py-3 rounded-xl bg-white/10 backdrop-blur-lg border border-white/20 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300"
                   placeholder="Enter your password"
                 />
                 <button
@@ -140,15 +123,20 @@ const LoginForm = () => {
             </div>
 
             {/* Submit Button */}
-            <NeonButton
+            <button
               type="submit"
-              loading={loading}
-              className="w-full"
-              size="lg"
-              icon={<Zap />}
+              disabled={loading}
+              className="w-full neon-gradient px-6 py-3 rounded-xl font-bold text-white hover:shadow-2xl hover:shadow-pink-500/25 transition-all duration-300 flex items-center justify-center space-x-2"
             >
-              {loading ? 'Logging in...' : 'Enter the Vibe ⚡'}
-            </NeonButton>
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>
+                  <Zap className="w-5 h-5" />
+                  <span>Enter the Vibe ⚡</span>
+                </>
+              )}
+            </button>
           </form>
 
           {/* Footer */}
@@ -172,7 +160,7 @@ const LoginForm = () => {
               <p className="text-xs text-gray-300">Password: demo123</p>
             </motion.div>
           </div>
-        </GlassCard>
+        </div>
       </motion.div>
     </div>
   )

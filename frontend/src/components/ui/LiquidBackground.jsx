@@ -2,86 +2,57 @@ import { motion } from 'framer-motion'
 
 const LiquidBackground = ({ chaosMode = false }) => {
   return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+    <div className="fixed inset-0 overflow-hidden pointer-events-none">
       {/* Animated blobs */}
-      <motion.div
-        className={`absolute -top-40 -left-40 w-80 h-80 rounded-full opacity-20 ${
-          chaosMode ? 'bg-gradient-to-r from-yellow-400 via-red-500 to-purple-600' : 'bg-gradient-to-r from-purple-500 to-pink-500'
-        }`}
-        animate={{
-          x: [0, 50, 0],
-          y: [0, 100, 0],
-          scale: [1, 1.2, 1],
-        }}
-        transition={{
-          duration: chaosMode ? 2 : 8,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-      />
+      {[...Array(5)].map((_, i) => (
+        <motion.div
+          key={i}
+          className={`absolute rounded-full blur-3xl opacity-20 ${
+            chaosMode ? 'animate-chaos' : ''
+          }`}
+          style={{
+            background: `linear-gradient(135deg, 
+              ${i % 2 === 0 ? '#ff006e' : '#8338ec'}, 
+              ${i % 3 === 0 ? '#3a86ff' : '#06ffa5'})`,
+            width: `${200 + i * 100}px`,
+            height: `${200 + i * 100}px`,
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+          }}
+          animate={{
+            x: [0, 100, -100, 0],
+            y: [0, -100, 100, 0],
+            scale: [1, 1.2, 0.8, 1],
+          }}
+          transition={{
+            duration: 10 + i * 2,
+            repeat: Infinity,
+            repeatType: 'reverse',
+            ease: 'easeInOut',
+          }}
+        />
+      ))}
       
-      <motion.div
-        className={`absolute -bottom-40 -right-40 w-96 h-96 rounded-full opacity-20 ${
-          chaosMode ? 'bg-gradient-to-r from-green-400 via-blue-500 to-purple-600' : 'bg-gradient-to-r from-cyan-500 to-blue-500'
-        }`}
-        animate={{
-          x: [0, -80, 0],
-          y: [0, -60, 0],
-          scale: [1, 0.8, 1],
-        }}
-        transition={{
-          duration: chaosMode ? 1.5 : 10,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 1
-        }}
-      />
-      
-      <motion.div
-        className={`absolute top-1/2 left-1/2 w-64 h-64 rounded-full opacity-10 ${
-          chaosMode ? 'bg-gradient-to-r from-pink-500 via-yellow-500 to-cyan-500' : 'bg-gradient-to-r from-indigo-500 to-purple-500'
-        }`}
-        animate={{
-          x: [-50, 50, -50],
-          y: [-50, 50, -50],
-          rotate: [0, chaosMode ? 360 : 180, 0],
-        }}
-        transition={{
-          duration: chaosMode ? 3 : 15,
-          repeat: Infinity,
-          ease: "linear"
-        }}
-      />
-
-      {/* Chaos mode extra effects */}
-      {chaosMode && (
-        <>
-          <motion.div
-            className="absolute top-20 right-20 w-32 h-32 rounded-full bg-gradient-to-r from-lime-400 to-yellow-500 opacity-30"
-            animate={{
-              scale: [1, 2, 1],
-              opacity: [0.3, 0.7, 0.3],
-            }}
-            transition={{
-              duration: 1,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
-          <motion.div
-            className="absolute bottom-20 left-20 w-40 h-40 rounded-full bg-gradient-to-r from-red-500 to-orange-500 opacity-25"
-            animate={{
-              x: [0, 100, 0],
-              rotate: [0, 360, 0],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-          />
-        </>
-      )}
+      {/* Particle effects */}
+      {[...Array(20)].map((_, i) => (
+        <motion.div
+          key={`particle-${i}`}
+          className="absolute w-1 h-1 bg-white rounded-full"
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+          }}
+          animate={{
+            opacity: [0.3, 1, 0.3],
+            scale: [0.5, 1.5, 0.5],
+          }}
+          transition={{
+            duration: 3 + Math.random() * 2,
+            repeat: Infinity,
+            delay: Math.random() * 2,
+          }}
+        />
+      ))}
     </div>
   )
 }

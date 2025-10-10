@@ -1,7 +1,6 @@
 import { Navigate, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '../../context/AuthContext'
-import GlassCard from '../ui/GlassCard'
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth()
@@ -10,7 +9,7 @@ const ProtectedRoute = ({ children }) => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <GlassCard className="p-8">
+        <div className="glass p-8 rounded-3xl">
           <motion.div
             className="flex flex-col items-center space-y-4"
             initial={{ opacity: 0 }}
@@ -23,7 +22,7 @@ const ProtectedRoute = ({ children }) => {
             />
             <p className="text-white font-medium">Loading your vibe...</p>
           </motion.div>
-        </GlassCard>
+        </div>
       </div>
     )
   }

@@ -1,14 +1,13 @@
 import { createContext, useContext, useReducer, useEffect } from 'react'
-import { authAPI, setAuthToken, getStoredToken, getStoredUser } from '../utils/api'
 import toast from 'react-hot-toast'
 
 const AuthContext = createContext()
 
 const initialState = {
-  user: getStoredUser(),
-  token: getStoredToken(),
+  user: null,
+  token: localStorage.getItem('hushh_token'),
   loading: false,
-  isAuthenticated: !!getStoredToken(),
+  isAuthenticated: !!localStorage.getItem('hushh_token'),
 }
 
 const authReducer = (state, action) => {
@@ -50,61 +49,41 @@ const authReducer = (state, action) => {
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState)
 
-  // Register function
-  const register = async (userData) => {
-    try {
-      dispatch({ type: 'AUTH_START' })
-      
-      const response = await authAPI.register(userData)
-      const { token, user, message } = response.data
-      
-      // Store token and user
-      localStorage.setItem('hushh_token', token)
-      localStorage.setItem('hushh_user', JSON.stringify(user))
-      setAuthToken(token)
-      
-      dispatch({ 
-        type: 'AUTH_SUCCESS', 
-        payload: { user, token } 
-      })
-      
-      toast.success(message || '🎉 Welcome to Hushh!')
-      return { success: true }
-      
-    } catch (error) {
-      const message = error.response?.data?.message || 'Registration failed'
-      dispatch({ type: 'AUTH_FAIL' })
-      toast.error(message)
-      return { success: false, message }
-    }
-  }
-
   // Login function
   const login = async (credentials) => {
     try {
       dispatch({ type: 'AUTH_START' })
       
-      const response = await authAPI.login(credentials)
-      const { token, user, message } = response.data
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
       
-      // Store token and user
-      localStorage.setItem('hushh_token', token)
-      localStorage.setItem('hushh_user', JSON.stringify(user))
-      setAuthToken(token)
+      const mockUser = {
+        id: '1',
+        username: credentials.email.split('@')[0],
+        email: credentials.email,
+        profile: {
+          displayName: 'Demo User',
+          avatar: null
+        }
+      }
+      
+      const mockToken = 'demo-token-123'
+      
+      localStorage.setItem('hushh_token', mockToken)
+      localStorage.setItem('hushh_user', JSON.stringify(mockUser))
       
       dispatch({ 
         type: 'AUTH_SUCCESS', 
-        payload: { user, token } 
+        payload: { user: mockUser, token: mockToken } 
       })
       
-      toast.success(message || `🔥 Welcome back, ${user.username}!`)
+      toast.success('🔥 Welcome back to Hushh!')
       return { success: true }
       
     } catch (error) {
-      const message = error.response?.data?.message || 'Login failed'
       dispatch({ type: 'AUTH_FAIL' })
-      toast.error(message)
-      return { success: false, message }
+      toast.error('Login failed')
+      return { success: false, message: 'Login failed' }
     }
   }
 
@@ -112,42 +91,14 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('hushh_token')
     localStorage.removeItem('hushh_user')
-    setAuthToken(null)
     dispatch({ type: 'LOGOUT' })
     toast.success('👋 See you later!')
   }
-
-  // Load user on app start
-  useEffect(() => {
-    const loadUser = async () => {
-      const token = getStoredToken()
-      if (token) {
-        try {
-          setAuthToken(token)
-          const response = await authAPI.getMe()
-          const user = response.data.user
-          
-          localStorage.setItem('hushh_user', JSON.stringify(user))
-          dispatch({ 
-            type: 'AUTH_SUCCESS', 
-            payload: { user, token } 
-          })
-        } catch (error) {
-          dispatch({ type: 'AUTH_FAIL' })
-          localStorage.removeItem('hushh_token')
-          localStorage.removeItem('hushh_user')
-        }
-      }
-    }
-
-    loadUser()
-  }, [])
 
   return (
     <AuthContext.Provider
       value={{
         ...state,
-        register,
         login,
         logout,
       }}
