@@ -143,27 +143,22 @@ const getMessages = async (req, res) => {
 
 // @desc    Get all conversations
 // @route   GET /api/messages
+// @desc    Get all conversations
+// @route   GET /api/messages
 const getConversations = async (req, res) => {
   try {
+    const userId = req.user._id
+
+    console.log('🔍 Getting conversations for user:', userId)
+
     const conversations = await Message.aggregate([
       {
         $match: {
           $or: [
-            { sender: req.user._id },
-            { recipient: req.user._id }
+            { sender: userId },
+            { recipient: userId }
           ],
           deleted: false
-        }
-      },
-      {
-        $addFields: {
-          otherUser: {
-            $cond: {
-              if: { $eq: ['$sender', req.user._id] },
-              then: '$recipient',
-              else: '$sender'
-            }
-          }
         }
       },
       {
@@ -171,30 +166,69 @@ const getConversations = async (req, res) => {
       },
       {
         $group: {
-          _id: '$otherUser',
+          _id: {
+            $cond: [
+              { $eq: ['$sender', userId] },
+              '$recipient',
+              '$sender'
+            ]
+          },
           lastMessage: { $first: '$$ROOT' },
           unreadCount: {
             $sum: {
-              $cond: {
-                if: {
+              $cond: [
+                {
                   $and: [
-                    { $eq: ['$recipient', req.user._id] },
+                    { $eq: ['$recipient', userId] },
                     { $ne: ['$status', 'read'] }
                   ]
                 },
-                then: 1,
-                else: 0
-              }
+                1,
+                0
+              ]
             }
           }
         }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'otherUser'
+        }
+      },
+      {
+        $unwind: {
+          path: '$otherUser',
+          preserveNullAndEmptyArrays: false
+        }
+      },
+      {
+        $project: {
+          _id: '$otherUser._id',
+          otherUser: {
+            _id: '$otherUser._id',
+            username: '$otherUser.username',
+            profile: '$otherUser.profile'
+          },
+          lastMessage: {
+            content: '$lastMessage.content',
+            timestamp: '$lastMessage.createdAt',
+            sender: '$lastMessage.sender'
+          },
+          unreadCount: 1
+        }
+      },
+      {
+        $sort: { 'lastMessage.timestamp': -1 }
       }
     ])
 
-    await Message.populate(conversations, {
-      path: '_id lastMessage.sender lastMessage.recipient',
-      select: 'username profile'
-    })
+    console.log('✅ Found conversations:', conversations.length)
+    if (conversations.length > 0) {
+      console.log('First conversation:', JSON.stringify(conversations[0], null, 2))
+    }
 
     res.json({
       success: true,
@@ -202,13 +236,16 @@ const getConversations = async (req, res) => {
     })
 
   } catch (error) {
-    console.error('Get conversations error:', error)
+    console.error('❌ Get conversations error:', error)
+    console.error('Error stack:', error.stack)
     res.status(500).json({
       success: false,
-      message: 'Server error fetching conversations'
+      message: 'Server error fetching conversations',
+      error: error.message
     })
   }
 }
+
 
 // @desc    Mark message as read
 // @route   PATCH /api/messages/:messageId/read
