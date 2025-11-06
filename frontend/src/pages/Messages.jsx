@@ -480,6 +480,7 @@ const Messages = () => {
       
       if (response.ok) {
         const data = await response.json()
+        console.log('Conversations data:', data)
         setConversations(data.conversations || [])
       } else {
         console.error('Failed to load conversations')
@@ -517,11 +518,23 @@ const Messages = () => {
     setSelectedContact(null)
   }
 
+  // FIXED: Safe filtering with null checks
   const filteredConversations = conversations.filter(conv => {
-    const otherUser = conv._id
-    const name = otherUser.profile?.displayName || otherUser.username
-    return name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           otherUser.username.toLowerCase().includes(searchTerm.toLowerCase())
+    // Safe extraction of user data - try different possible structures
+    const otherUser = conv.otherUser || conv.user || conv.recipient || conv._id
+    
+    // Validate user object exists and is an object
+    if (!otherUser || typeof otherUser !== 'object') {
+      console.warn('Invalid conversation user:', conv)
+      return false
+    }
+    
+    // Safe string extraction with fallbacks
+    const name = otherUser.profile?.displayName || otherUser.username || ''
+    const username = otherUser.username || ''
+    const query = searchTerm.toLowerCase()
+    
+    return name.toLowerCase().includes(query) || username.toLowerCase().includes(query)
   })
 
   const formatTime = (timestamp) => {
@@ -596,18 +609,26 @@ const Messages = () => {
                   </div>
                 ) : (
                   filteredConversations.map((conversation) => {
-                    const otherUser = conversation._id
+                    // FIXED: Safe extraction with multiple fallbacks
+                    const otherUser = conversation.otherUser || conversation.user || conversation.recipient || conversation._id
+                    
+                    // Skip if invalid user object
+                    if (!otherUser || typeof otherUser !== 'object') {
+                      console.warn('Skipping invalid conversation:', conversation)
+                      return null
+                    }
+
                     const lastMessage = conversation.lastMessage
                     const contact = {
-                      id: otherUser._id,
-                      name: otherUser.profile?.displayName || otherUser.username,
-                      username: otherUser.username,
+                      id: otherUser._id || otherUser.id,
+                      name: otherUser.profile?.displayName || otherUser.username || 'Unknown User',
+                      username: otherUser.username || 'unknown',
                       avatar: otherUser.profile?.avatar
                     }
 
                     return (
                       <motion.div
-                        key={conversation._id._id}
+                        key={otherUser._id || otherUser.id || Math.random()}
                         whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
                         onClick={() => handleSelectContact(contact)}
                         className={`p-4 cursor-pointer border-b border-white/5 transition-all ${
@@ -660,7 +681,7 @@ const Messages = () => {
                         </div>
                       </motion.div>
                     )
-                  })
+                  }).filter(Boolean) // Remove null entries
                 )}
               </div>
             </div>

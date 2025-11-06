@@ -1,4 +1,4 @@
-const { body } = require('express-validator')
+const { body, validationResult } = require('express-validator')
 
 const registerValidation = [
   body('username')
@@ -23,7 +23,20 @@ const registerValidation = [
     .optional()
     .trim()
     .isLength({ max: 50 })
-    .withMessage('Display name must be less than 50 characters')
+    .withMessage('Display name must be less than 50 characters'),
+
+  // ADD THIS: Error handling middleware
+  (req, res, next) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        errors: errors.array()
+      })
+    }
+    next()
+  }
 ]
 
 const loginValidation = [
@@ -33,7 +46,20 @@ const loginValidation = [
   
   body('password')
     .notEmpty()
-    .withMessage('Password is required')
+    .withMessage('Password is required'),
+
+  // ADD THIS: Error handling middleware
+  (req, res, next) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        errors: errors.array()
+      })
+    }
+    next()
+  }
 ]
 
 module.exports = { registerValidation, loginValidation }

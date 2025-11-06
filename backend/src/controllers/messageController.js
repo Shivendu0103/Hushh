@@ -8,19 +8,36 @@ const sendMessage = async (req, res) => {
   try {
     const { recipientId, content, messageType = 'text', replyTo } = req.body
 
-    // Check if users are connected (optional - remove for open messaging)
-    const areConnected = await Connection.areConnected(req.user.id, recipientId)
-    if (!areConnected) {
-      return res.status(403).json({
+    // Validate input
+    if (!recipientId || !content || !content.trim()) {
+      return res.status(400).json({
         success: false,
-        message: 'You can only message connected users'
+        message: 'Recipient ID and message content are required'
       })
     }
+
+    // Check if recipient exists
+    const recipient = await User.findById(recipientId)
+    if (!recipient) {
+      return res.status(404).json({
+        success: false,
+        message: 'Recipient not found'
+      })
+    }
+
+    // Optional: Check if users are connected (commented out for open messaging)
+    // const areConnected = await Connection.areConnected(req.user.id, recipientId)
+    // if (!areConnected) {
+    //   return res.status(403).json({
+    //     success: false,
+    //     message: 'You can only message connected users'
+    //   })
+    // }
 
     const message = await Message.create({
       sender: req.user.id,
       recipient: recipientId,
-      content,
+      content: content.trim(),
       messageType,
       replyTo
     })
@@ -52,7 +69,8 @@ const sendMessage = async (req, res) => {
     console.error('Send message error:', error)
     res.status(500).json({
       success: false,
-      message: 'Server error sending message'
+      message: 'Server error sending message',
+      error: error.message
     })
   }
 }
@@ -83,9 +101,30 @@ const getMessages = async (req, res) => {
       { status: 'read', $push: { readBy: { user: req.user.id } } }
     )
 
+    // Format messages consistently
+    const formattedMessages = messages.map(msg => ({
+      _id: msg._id,
+      senderId: msg.sender._id.toString(),
+      recipientId: msg.recipient._id.toString(),
+      content: msg.content,
+      messageType: msg.messageType,
+      timestamp: msg.createdAt,
+      createdAt: msg.createdAt,
+      sender: {
+        _id: msg.sender._id,
+        id: msg.sender._id.toString(),
+        username: msg.sender.username,
+        displayName: msg.sender.profile?.displayName || msg.sender.username,
+        avatar: msg.sender.profile?.avatar
+      },
+      status: msg.status,
+      read: msg.status === 'read',
+      replyTo: msg.replyTo
+    }))
+
     res.json({
       success: true,
-      messages: messages.reverse(),
+      messages: formattedMessages.reverse(),
       pagination: {
         page,
         limit,

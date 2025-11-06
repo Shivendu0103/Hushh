@@ -87,11 +87,17 @@ io.on('connection', (socket) => {
     try {
       const { recipientId, senderId, content, type = 'text' } = data
       
+      // Validate required fields
+      if (!recipientId || !senderId || !content || !content.trim()) {
+        socket.emit('message_error', { error: 'Missing required fields' })
+        return
+      }
+      
       // Save message to database
       const newMessage = new Message({
         sender: senderId,
         recipient: recipientId,
-        content,
+        content: content.trim(),
         messageType: type,
         status: 'sent'
       })
@@ -100,15 +106,23 @@ io.on('connection', (socket) => {
       await savedMessage.populate('sender', 'username profile')
       await savedMessage.populate('recipient', 'username profile')
 
-      // Create message object for real-time transmission
+      // Create consistent message object for real-time transmission
       const messageForSocket = {
         _id: savedMessage._id,
-        senderId,
-        recipientId,
-        content,
-        type,
+        senderId: savedMessage.sender._id.toString(),
+        recipientId: savedMessage.recipient._id.toString(),
+        content: savedMessage.content,
+        messageType: savedMessage.messageType,
         timestamp: savedMessage.createdAt,
-        sender: data.sender,
+        createdAt: savedMessage.createdAt,
+        sender: {
+          _id: savedMessage.sender._id,
+          id: savedMessage.sender._id.toString(),
+          username: savedMessage.sender.username,
+          displayName: savedMessage.sender.profile?.displayName || savedMessage.sender.username,
+          avatar: savedMessage.sender.profile?.avatar
+        },
+        status: savedMessage.status,
         read: false
       }
 

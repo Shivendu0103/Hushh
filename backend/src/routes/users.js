@@ -14,11 +14,14 @@ const {
 
 const router = express.Router()
 
-// Public routes
-router.get('/search', searchUsers)
+// ===== CRITICAL: Specific routes BEFORE catch-all /:id =====
+// Search route - must be protected and BEFORE /:id
+router.get('/search', protect, searchUsers)
+
+// Public user profile route
 router.get('/:id', getUserProfile)
 
-// Protected routes
+// All other routes require authentication
 router.use(protect)
 
 router.route('/')

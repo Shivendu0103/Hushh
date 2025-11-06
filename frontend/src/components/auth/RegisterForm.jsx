@@ -24,12 +24,22 @@ const RegisterForm = () => {
   const password = watch('password')
 
   const onSubmit = async (data) => {
-    const result = await registerUser(data)
-    if (result.success) {
-      setStep(2) // Show success animation
-      setTimeout(() => navigate('/'), 2000)
-    }
+  console.log('🔍 Register form data:', data)
+  
+  // ✅ CORRECT - Pass individual parameters
+  const result = await registerUser(
+    data.username,
+    data.email,
+    data.password,
+    data.displayName || data.username  // Use username if displayName is empty
+  )
+  
+  if (result.success) {
+    setStep(2)
+    setTimeout(() => navigate('/'), 2000)
   }
+}
+
 
   const passwordStrength = (password) => {
     if (!password) return { strength: 0, label: '', color: '' }
