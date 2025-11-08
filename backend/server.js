@@ -22,7 +22,14 @@ const User = require('./src/models/User')
 const app = express()
 const server = http.createServer(app)
 
-// Socket.io setup
+// CORS configuration - DEFINE THIS FIRST!
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://try-hushh.vercel.app'
+]
+
+// Socket.io setup - USE allowedOrigins here
 const io = socketIo(server, {
   cors: {
     origin: allowedOrigins,
@@ -31,20 +38,12 @@ const io = socketIo(server, {
   }
 })
 
-
 // Connect to database
 connectDB()
 
 // Middleware
 app.use(helmet())
 app.use(morgan('combined'))
-// CORS configuration
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:5173',
-  'https://try-hushh.vercel.app'
-]
-
 app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or Postman)
@@ -60,7 +59,6 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }))
-
 app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ extended: true }))
 
@@ -273,7 +271,7 @@ const PORT = process.env.PORT || 5000
 
 server.listen(PORT, () => {
   console.log(`🚀 Hushh server running on port ${PORT}`)
-  console.log(`📱 Frontend URL: ${process.env.FRONTEND_URL}`)
+  console.log(`📱 Allowed origins: ${allowedOrigins.join(', ')}`)
   console.log(`🌍 Environment: ${process.env.NODE_ENV}`)
   console.log(`⚡ Socket.io enabled for real-time features!`)
   console.log(`✨ Ready for REAL users to connect!`)
