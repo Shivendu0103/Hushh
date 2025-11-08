@@ -25,10 +25,12 @@ const server = http.createServer(app)
 // Socket.io setup
 const io = socketIo(server, {
   cors: {
-    origin: process.env.FRONTEND_URL,
-    methods: ["GET", "POST"]
+    origin: allowedOrigins,
+    methods: ["GET", "POST"],
+    credentials: true
   }
 })
+
 
 // Connect to database
 connectDB()
@@ -36,10 +38,29 @@ connectDB()
 // Middleware
 app.use(helmet())
 app.use(morgan('combined'))
+// CORS configuration
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://try-hushh.vercel.app'
+]
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
-  credentials: true
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or Postman)
+    if (!origin) return callback(null, true)
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }))
+
 app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ extended: true }))
 
