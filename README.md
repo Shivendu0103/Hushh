@@ -1,6 +1,5 @@
 text
-# 🌐 Hushh - Real-Time Chat Platform
-
+# 🌐 Hushh - Real-Time Chat Platform / Social networking platform
 <div align="center">
   
 [![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen)](https://try-hushh.vercel.app)
