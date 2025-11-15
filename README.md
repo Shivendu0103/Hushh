@@ -1,5 +1,5 @@
 text
-# 🌐 Hushh - Real-Time Chat Platform / Social networking platform
+# 🌐 Hushh - Social networking platform
 <div align="center">
   
 [![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen)](https://try-hushh.vercel.app)
@@ -36,7 +36,7 @@ text
 
 ## 🚀 About
 
-**Hushh** is a full-stack, real-time chat application that enables seamless communication between users. Built with the MERN stack (MongoDB, Express.js, React.js, Node.js) and powered by Socket.io for real-time bidirectional event-based communication, Hushh provides a modern, secure, and scalable messaging experience.
+**Hushh** is a full-stack, real-time chat application that enables seamless communication between users. Built with the MERN stack (MongoDB, Express.js, React.js, Node.js) and powered by Socket.io for real-time bidirectional event-based communication, Hushh provides a modern, secure, and scalable messaging experience. We are adding more features soon.
 
 ### Why Hushh?
 
