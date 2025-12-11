@@ -418,7 +418,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 **Shivendu Sinha**
 
 - GitHub: [@Shivendu0103](https://github.com/Shivendu0103)
-- LinkedIn: [Your LinkedIn](https://www.linkedin.com/in/shivendu0103/)
+- LinkedIn: [Shivendu Sinha](https://www.linkedin.com/in/shivendu0103/)
 - Email: shivendu0103@gmail.com
 
 ---
