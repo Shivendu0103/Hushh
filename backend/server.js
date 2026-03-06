@@ -14,6 +14,7 @@ const authRoutes = require('./src/routes/auth')
 const userRoutes = require('./src/routes/users')
 const postRoutes = require('./src/routes/posts')
 const messageRoutes = require('./src/routes/messages')
+const storyRoutes = require('./src/routes/stories')
 
 // Import models
 const Message = require('./src/models/Message')
@@ -48,7 +49,7 @@ app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or Postman)
     if (!origin) return callback(null, true)
-    
+
     if (allowedOrigins.includes(origin)) {
       callback(null, true)
     } else {
@@ -73,6 +74,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api/users', userRoutes)
 app.use('/api/posts', postRoutes)
 app.use('/api/messages', messageRoutes)
+app.use('/api/stories', storyRoutes)
 
 // Socket.io real-time features
 const activeUsers = new Map()
@@ -85,16 +87,16 @@ io.on('connection', (socket) => {
     try {
       activeUsers.set(socket.id, { userId, socketId: socket.id })
       socket.join(`user_${userId}`)
-      
+
       // Update user online status in database
-      await User.findByIdAndUpdate(userId, { 
+      await User.findByIdAndUpdate(userId, {
         isOnline: true,
-        lastSeen: new Date() 
+        lastSeen: new Date()
       })
-      
+
       // Broadcast user online status
       socket.broadcast.emit('user_online', userId)
-      
+
       console.log(`👋 User ${userId} joined`)
     } catch (error) {
       console.error('User join error:', error)
@@ -105,13 +107,13 @@ io.on('connection', (socket) => {
   socket.on('send_message', async (data) => {
     try {
       const { recipientId, senderId, content, type = 'text' } = data
-      
+
       // Validate required fields
       if (!recipientId || !senderId || !content || !content.trim()) {
         socket.emit('message_error', { error: 'Missing required fields' })
         return
       }
-      
+
       // Save message to database
       const newMessage = new Message({
         sender: senderId,
@@ -120,7 +122,7 @@ io.on('connection', (socket) => {
         messageType: type,
         status: 'sent'
       })
-      
+
       const savedMessage = await newMessage.save()
       await savedMessage.populate('sender', 'username profile')
       await savedMessage.populate('recipient', 'username profile')
@@ -149,12 +151,12 @@ io.on('connection', (socket) => {
       io.to(`user_${recipientId}`).emit('new_message', messageForSocket)
 
       // Send back to sender for confirmation
-      socket.emit('message_sent', { 
-        messageId: savedMessage._id, 
+      socket.emit('message_sent', {
+        messageId: savedMessage._id,
         status: 'delivered',
         message: messageForSocket
       })
-      
+
       console.log(`💬 Message saved and sent from ${senderId} to ${recipientId}`)
     } catch (error) {
       console.error('Send message error:', error)
@@ -166,7 +168,7 @@ io.on('connection', (socket) => {
   socket.on('mark_message_read', async (data) => {
     try {
       const { messageId, userId } = data
-      
+
       await Message.findByIdAndUpdate(messageId, {
         status: 'read',
         $push: { readBy: { user: userId, readAt: new Date() } }
@@ -178,7 +180,7 @@ io.on('connection', (socket) => {
         messageId,
         readBy: userId
       })
-      
+
     } catch (error) {
       console.error('Mark read error:', error)
     }
@@ -187,7 +189,7 @@ io.on('connection', (socket) => {
   // Real-time post reactions
   socket.on('post_reaction', (data) => {
     const { postId, userId, reaction, postAuthorId } = data
-    
+
     // Broadcast to post author
     io.to(`user_${postAuthorId}`).emit('new_reaction', {
       postId,
@@ -218,7 +220,7 @@ io.on('connection', (socket) => {
   // Real-time notifications
   socket.on('send_notification', (data) => {
     const { recipientId, type, message, senderId } = data
-    
+
     io.to(`user_${recipientId}`).emit('new_notification', {
       id: Date.now(),
       type,
@@ -235,11 +237,11 @@ io.on('connection', (socket) => {
     if (user) {
       try {
         // Update user offline status in database
-        await User.findByIdAndUpdate(user.userId, { 
+        await User.findByIdAndUpdate(user.userId, {
           isOnline: false,
-          lastSeen: new Date() 
+          lastSeen: new Date()
         })
-        
+
         // Broadcast user offline status
         socket.broadcast.emit('user_offline', user.userId)
         activeUsers.delete(socket.id)
@@ -254,11 +256,11 @@ io.on('connection', (socket) => {
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ 
+  res.json({
     status: '🔥 Hushh Backend is LIVE!',
     activeUsers: activeUsers.size,
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV 
+    environment: process.env.NODE_ENV
   })
 })
 

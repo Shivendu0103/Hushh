@@ -6,7 +6,8 @@ const {
   getUserPosts,
   likePost,
   commentPost,
-  deletePost
+  deletePost,
+  sharePost
 } = require('../controllers/postController')
 
 const router = express.Router()
@@ -18,6 +19,7 @@ router.route('/')
 router.route('/user/:userId').get(getUserPosts)
 router.route('/:id').delete(protect, deletePost)
 router.route('/:id/like').post(protect, likePost)
+router.route('/:id/share').post(protect, sharePost)
 router.route('/:id/comment').post(protect, commentPost)
 
 module.exports = router

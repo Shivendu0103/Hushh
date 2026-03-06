@@ -1,13 +1,16 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { Heart, MessageCircle, Share, MoreHorizontal } from 'lucide-react'
+import { Heart, MessageCircle, Share, MoreHorizontal, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import GlassCard from '../ui/GlassCard'
 import NeonButton from '../ui/NeonButton'
+import { useAuth } from '../../context/AuthContext'
 
-const PostCard = ({ post, onLike, onComment, onShare }) => {
-  const [liked, setLiked] = useState(false)
+const PostCard = ({ post, onLike, onComment, onShare, onDelete }) => {
+  const { user } = useAuth()
+  const [liked, setLiked] = useState(post.likedByUser || false)
   const [showEmojiExplosion, setShowEmojiExplosion] = useState(false)
   const [showComments, setShowComments] = useState(false)
+  const [commentText, setCommentText] = useState('')
 
   const handleLike = () => {
     setLiked(!liked)
@@ -20,7 +23,7 @@ const PostCard = ({ post, onLike, onComment, onShare }) => {
     const now = new Date()
     const postTime = new Date(timestamp)
     const diffInMinutes = Math.floor((now - postTime) / (1000 * 60))
-    
+
     if (diffInMinutes < 1) return 'Just now'
     if (diffInMinutes < 60) return `${diffInMinutes}m ago`
     if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`
@@ -37,11 +40,11 @@ const PostCard = ({ post, onLike, onComment, onShare }) => {
               <motion.span
                 key={i}
                 className="absolute text-2xl"
-                initial={{ 
-                  x: '50%', 
-                  y: '50%', 
+                initial={{
+                  x: '50%',
+                  y: '50%',
                   scale: 0,
-                  rotate: 0 
+                  rotate: 0
                 }}
                 animate={{
                   x: `${50 + (Math.random() - 0.5) * 200}%`,
@@ -63,17 +66,17 @@ const PostCard = ({ post, onLike, onComment, onShare }) => {
         {/* Post Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <motion.div 
+            <motion.div
               className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-cyan-500 p-0.5"
               whileHover={{ scale: 1.05 }}
             >
-              <img 
-                src={post.author.avatar || "/default-avatar.png"} 
+              <img
+                src={post.author.avatar || "/default-avatar.png"}
                 alt={post.author.name}
                 className="w-full h-full rounded-full object-cover"
               />
             </motion.div>
-            
+
             <div>
               <h3 className="font-bold text-white hover:neon-text cursor-pointer transition-all">
                 {post.author.displayName || post.author.username}
@@ -84,9 +87,16 @@ const PostCard = ({ post, onLike, onComment, onShare }) => {
             </div>
           </div>
 
-          <NeonButton variant="ghost" size="sm">
-            <MoreHorizontal className="w-4 h-4" />
-          </NeonButton>
+          <div className="flex space-x-2">
+            {user?.id === post.author.id && (
+              <NeonButton variant="ghost" size="sm" onClick={() => onDelete?.(post.id)}>
+                <Trash2 className="w-4 h-4 text-red-400" />
+              </NeonButton>
+            )}
+            <NeonButton variant="ghost" size="sm">
+              <MoreHorizontal className="w-4 h-4" />
+            </NeonButton>
+          </div>
         </div>
 
         {/* Post Content */}
@@ -135,11 +145,10 @@ const PostCard = ({ post, onLike, onComment, onShare }) => {
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={handleLike}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-300 ${
-                liked 
-                  ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/25' 
+              className={`flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-300 ${liked
+                  ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/25'
                   : 'bg-white/10 text-gray-300 hover:bg-white/20 hover:text-pink-400'
-              }`}
+                }`}
             >
               <motion.div
                 animate={liked ? { scale: [1, 1.3, 1] } : {}}
@@ -159,13 +168,13 @@ const PostCard = ({ post, onLike, onComment, onShare }) => {
               className="flex items-center space-x-2 px-4 py-2 rounded-full bg-white/10 text-gray-300 hover:bg-white/20 hover:text-blue-400 transition-all duration-300"
             >
               <MessageCircle className="w-5 h-5" />
-              <span className="font-medium">{post.comments}</span>
+              <span className="font-medium">{post.comments?.length || post.comments || 0}</span>
             </motion.button>
 
             {/* Share Button */}
             <motion.button
               whileTap={{ scale: 0.9 }}
-              onClick={() => onShare?.(post)}
+              onClick={() => onShare?.(post.id)}
               className="flex items-center space-x-2 px-4 py-2 rounded-full bg-white/10 text-gray-300 hover:bg-white/20 hover:text-green-400 transition-all duration-300"
             >
               <Share className="w-5 h-5" />
@@ -175,12 +184,11 @@ const PostCard = ({ post, onLike, onComment, onShare }) => {
 
           {/* Mood indicator */}
           {post.mood && (
-            <div className={`px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${
-              post.mood.vibe === 'fire' ? 'from-red-500 to-orange-500' :
-              post.mood.vibe === 'chill' ? 'from-blue-500 to-cyan-500' :
-              post.mood.vibe === 'chaos' ? 'from-yellow-400 to-purple-600' :
-              'from-purple-500 to-pink-500'
-            }`}>
+            <div className={`px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${post.mood.vibe === 'fire' ? 'from-red-500 to-orange-500' :
+                post.mood.vibe === 'chill' ? 'from-blue-500 to-cyan-500' :
+                  post.mood.vibe === 'chaos' ? 'from-yellow-400 to-purple-600' :
+                    'from-purple-500 to-pink-500'
+              }`}>
               {post.mood.vibe} vibes ✨
             </div>
           )}
@@ -196,39 +204,63 @@ const PostCard = ({ post, onLike, onComment, onShare }) => {
               className="mt-4 pt-4 border-t border-white/10"
             >
               <div className="space-y-3 max-h-60 overflow-y-auto">
-                {/* Sample comments */}
-                {[
-                  { user: 'jane_doe', content: 'This is fire! 🔥', time: '2m' },
-                  { user: 'cool_user', content: 'Vibing with this energy ✨', time: '5m' }
-                ].map((comment, index) => (
+                {Array.isArray(post.comments) ? post.comments.map((comment, index) => (
                   <motion.div
-                    key={index}
+                    key={comment._id || index}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
                     className="flex items-start space-x-3"
                   >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 flex-shrink-0" />
+                    <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                      <img
+                        src={comment.author?.avatar || `https://ui-avatars.com/api/?name=${comment.author?.username}&background=random`}
+                        alt={comment.author?.username}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                     <div className="flex-1">
                       <p className="text-sm">
-                        <span className="font-semibold text-white">@{comment.user}</span>
+                        <span className="font-semibold text-white">@{comment.author?.username}</span>
                         <span className="text-gray-300 ml-2">{comment.content}</span>
                       </p>
-                      <p className="text-xs text-gray-500">{comment.time} ago</p>
+                      <p className="text-xs text-gray-500">{formatTimeAgo(comment.createdAt)}</p>
                     </div>
                   </motion.div>
-                ))}
+                )) : (
+                  <p className="text-gray-500 text-sm">No comments yet. Be the first!</p>
+                )}
               </div>
 
               {/* Comment Input */}
               <div className="mt-4 flex space-x-3">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-cyan-500 flex-shrink-0" />
+                <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                  <img src={user?.profile?.avatar || `https://ui-avatars.com/api/?name=${user?.username}&background=random`} className="w-full h-full object-cover" />
+                </div>
                 <input
                   type="text"
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && commentText.trim()) {
+                      onComment?.(post.id, commentText)
+                      setCommentText('')
+                    }
+                  }}
                   placeholder="Add a vibe..."
                   className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
                 />
-                <NeonButton size="sm">Post</NeonButton>
+                <NeonButton
+                  size="sm"
+                  onClick={() => {
+                    if (commentText.trim()) {
+                      onComment?.(post.id, commentText)
+                      setCommentText('')
+                    }
+                  }}
+                >
+                  Post
+                </NeonButton>
               </div>
             </motion.div>
           )}

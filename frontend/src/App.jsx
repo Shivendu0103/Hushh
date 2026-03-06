@@ -13,11 +13,11 @@ import Profile from './pages/Profile'
 import Settings from './pages/Settings'
 import FloatingButton from './components/ui/FloatingButton'
 import LiquidBackground from './components/ui/LiquidBackground'
+import Ballpit from './components/ui/Ballpit'
 
 function Home() {
   return (
     <div className="min-h-screen relative">
-      <LiquidBackground />
       <div className="relative z-10 container mx-auto px-4 py-8 max-w-2xl">
         <PostFeed />
       </div>
@@ -34,23 +34,37 @@ function App() {
       <AuthProvider>
         <SocketProvider>  {/* Wrap with SocketProvider */}
           <Router>
-            <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
-              <Routes>
-                <Route path="/login" element={<LoginForm />} />
-                <Route path="/register" element={<RegisterForm />} />
-                <Route path="/*" element={
-                  <ProtectedRoute>
-                    <Header />
-                    <Routes>
-                      <Route path="/" element={<Home />} />
-                      <Route path="/messages" element={<Messages />} />
-                      <Route path="/profile" element={<Profile />} />
-                      <Route path="/settings" element={<Settings />} />
-                    </Routes>
-                  </ProtectedRoute>
-                } />
-              </Routes>
-              <Toaster 
+            <div className="min-h-screen relative bg-transparent">
+              <div className="fixed inset-0 z-0 w-full h-screen overflow-hidden pointer-events-none">
+                <Ballpit
+                  count={150}
+                  gravity={0.01}
+                  friction={0.9975}
+                  wallBounce={0.95}
+                  followCursor={true}
+                  colors={[0x000000, 0xffffff, 0x8338ec, 0x111111, 0x4b0082]}
+                  ambientIntensity={2}
+                  lightIntensity={300}
+                />
+              </div>
+              <div className="relative z-10">
+                <Routes>
+                  <Route path="/login" element={<LoginForm />} />
+                  <Route path="/register" element={<RegisterForm />} />
+                  <Route path="/*" element={
+                    <ProtectedRoute>
+                      <Header />
+                      <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/messages" element={<Messages />} />
+                        <Route path="/profile" element={<Profile />} />
+                        <Route path="/settings" element={<Settings />} />
+                      </Routes>
+                    </ProtectedRoute>
+                  } />
+                </Routes>
+              </div>
+              <Toaster
                 position="bottom-right"
                 toastOptions={{
                   style: {

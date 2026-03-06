@@ -1,6 +1,73 @@
 import { motion } from 'framer-motion'
+import { useQuery, useMutation, useQueryClient } from 'react-query'
+import axios from 'axios'
+import toast from 'react-hot-toast'
+import PostCard from './PostCard'
+import StoryBar from '../stories/StoryBar'
+
+const API_URL = import.meta.env.VITE_API_URL
 
 const PostFeed = () => {
+  const queryClient = useQueryClient()
+
+  const { data: posts = [], isLoading } = useQuery('posts', async () => {
+    const res = await axios.get(`${API_URL}/posts`, { withCredentials: true })
+    return res.data.posts
+  })
+
+  const likeMutation = useMutation(
+    async (postId) => {
+      const res = await axios.post(`${API_URL}/posts/${postId}/like`, {}, { withCredentials: true })
+      return res.data
+    },
+    {
+      onSuccess: () => queryClient.invalidateQueries('posts'),
+      onError: () => toast.error('Failed to like post')
+    }
+  )
+
+  const commentMutation = useMutation(
+    async ({ postId, content }) => {
+      const res = await axios.post(`${API_URL}/posts/${postId}/comment`, { content }, { withCredentials: true })
+      return res.data
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('posts')
+        toast.success('Comment added!')
+      },
+      onError: () => toast.error('Failed to add comment')
+    }
+  )
+
+  const shareMutation = useMutation(
+    async (postId) => {
+      const res = await axios.post(`${API_URL}/posts/${postId}/share`, {}, { withCredentials: true })
+      return res.data
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('posts')
+        toast.success('Post shared!')
+      },
+      onError: () => toast.error('Failed to share post')
+    }
+  )
+
+  const deleteMutation = useMutation(
+    async (postId) => {
+      const res = await axios.delete(`${API_URL}/posts/${postId}`, { withCredentials: true })
+      return res.data
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('posts')
+        toast.success('Post deleted')
+      },
+      onError: () => toast.error('Failed to delete post')
+    }
+  )
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
@@ -10,39 +77,30 @@ const PostFeed = () => {
         <p className="text-gray-400 mt-2">What's vibing in your universe</p>
       </div>
 
-      {/* Sample posts */}
-      {[1, 2, 3].map((i) => (
-        <motion.div
-          key={i}
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: i * 0.1 }}
-          className="glass glass-hover p-6 rounded-3xl"
-        >
-          <div className="flex items-center space-x-3 mb-4">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-cyan-500" />
-            <div>
-              <h3 className="font-bold text-white">Demo User {i}</h3>
-              <p className="text-gray-400 text-sm">@demo_user_{i}</p>
-            </div>
-          </div>
-          
-          <p className="text-white text-lg mb-4">
-            This is an epic post from the future! Hushh is absolutely incredible with these glassmorphism effects! 🚀✨
-          </p>
-          
-          <div className="flex space-x-4">
-            <button className="flex items-center space-x-2 px-4 py-2 rounded-full bg-white/10 hover:bg-pink-500 transition-all">
-              <span>❤️</span>
-              <span className="text-white">{10 + i * 5}</span>
-            </button>
-            <button className="flex items-center space-x-2 px-4 py-2 rounded-full bg-white/10 hover:bg-blue-500 transition-all">
-              <span>💬</span>
-              <span className="text-white">{3 + i}</span>
-            </button>
-          </div>
-        </motion.div>
-      ))}
+      <StoryBar />
+
+      {isLoading ? (
+        <div className="text-center text-gray-400">Loading vibes...</div>
+      ) : posts.length > 0 ? (
+        posts.map((post, i) => (
+          <motion.div
+            key={post.id}
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+          >
+            <PostCard
+              post={post}
+              onLike={(id) => likeMutation.mutate(id)}
+              onComment={(id, content) => commentMutation.mutate({ postId: id, content })}
+              onShare={(id) => shareMutation.mutate(id)}
+              onDelete={(id) => deleteMutation.mutate(id)}
+            />
+          </motion.div>
+        ))
+      ) : (
+        <div className="text-center text-gray-400">No posts yet. Be the first to share your vibe!</div>
+      )}
     </div>
   )
 }
