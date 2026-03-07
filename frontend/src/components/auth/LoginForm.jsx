@@ -1,19 +1,19 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useForm } from 'react-hook-form'
-import { Mail, Lock, Eye, EyeOff, Zap } from 'lucide-react'
+import { Eye, EyeOff, Zap, Sparkles } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 
 const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false)
-  const [isHovered, setIsHovered] = useState(false)
   const { login, loading } = useAuth()
   const navigate = useNavigate()
-  
+
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors }
   } = useForm()
 
@@ -24,144 +24,112 @@ const LoginForm = () => {
     }
   }
 
+  const fillDemoCreds = () => {
+    setValue('email', 'demo@hushh.com')
+    setValue('password', 'demo123')
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8, y: 50 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ type: "spring", stiffness: 100, damping: 15 }}
-        className="w-full max-w-md"
-      >
-        <div 
-          className="glass glass-hover p-8 space-y-6 rounded-3xl" 
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          {/* Header */}
-          <div className="text-center space-y-2">
-            <motion.h1
-              className="text-4xl font-black neon-text"
-              animate={isHovered ? { 
-                scale: [1, 1.05, 1],
-              } : {}}
-              transition={{ duration: 2, repeat: isHovered ? Infinity : 0 }}
-            >
-              Hushh ✨
-            </motion.h1>
-            <p className="text-gray-300">Welcome back to the future</p>
+    <div className="min-h-screen flex flex-col relative z-10 w-full font-sans overflow-hidden">
+      {/* Top Nav Pill */}
+      <div className="w-full flex justify-center pt-8 absolute top-0 left-0 z-50">
+        <div className="flex items-center justify-between bg-[#111]/80 backdrop-blur-xl border border-white/10 rounded-full px-8 py-4 w-[90%] max-w-4xl shadow-2xl">
+          <div className="flex items-center space-x-2 text-white font-semibold text-lg tracking-tight">
+            <Zap className="w-5 h-5" />
+            <span>Hushh Bits</span>
           </div>
-
-          {/* Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* Email Field */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Email
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  {...register('email', {
-                    required: 'Email is required',
-                    pattern: {
-                      value: /^\S+@\S+$/i,
-                      message: 'Please enter a valid email'
-                    }
-                  })}
-                  type="email"
-                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/10 backdrop-blur-lg border border-white/20 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300"
-                  placeholder="Enter your email"
-                />
-              </div>
-              {errors.email && (
-                <motion.p
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-red-400 text-sm mt-1"
-                >
-                  {errors.email.message}
-                </motion.p>
-              )}
-            </div>
-
-            {/* Password Field */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  {...register('password', {
-                    required: 'Password is required',
-                    minLength: {
-                      value: 6,
-                      message: 'Password must be at least 6 characters'
-                    }
-                  })}
-                  type={showPassword ? 'text' : 'password'}
-                  className="w-full pl-10 pr-12 py-3 rounded-xl bg-white/10 backdrop-blur-lg border border-white/20 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300"
-                  placeholder="Enter your password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-              {errors.password && (
-                <motion.p
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-red-400 text-sm mt-1"
-                >
-                  {errors.password.message}
-                </motion.p>
-              )}
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full neon-gradient px-6 py-3 rounded-xl font-bold text-white hover:shadow-2xl hover:shadow-pink-500/25 transition-all duration-300 flex items-center justify-center space-x-2"
-            >
-              {loading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <>
-                  <Zap className="w-5 h-5" />
-                  <span>Enter the Vibe ⚡</span>
-                </>
-              )}
-            </button>
-          </form>
-
-          {/* Footer */}
-          <div className="text-center space-y-4">
-            <Link
-              to="/register"
-              className="text-purple-400 hover:text-purple-300 transition-colors font-medium"
-            >
-              Don't have an account? Join the future 🚀
-            </Link>
-            
-            {/* Demo credentials */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="p-3 bg-white/5 rounded-lg border border-white/10"
-            >
-              <p className="text-xs text-gray-400 mb-1">Demo Credentials:</p>
-              <p className="text-xs text-gray-300">Email: demo@hushh.com</p>
-              <p className="text-xs text-gray-300">Password: demo123</p>
-            </motion.div>
+          <div className="flex space-x-8 text-white/90 font-medium text-sm">
+            <Link to="/" className="hover:text-white transition-colors">Home</Link>
+            <Link to="/register" className="hover:text-white transition-colors">Docs</Link>
           </div>
         </div>
-      </motion.div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex items-center justify-center p-4 mt-16">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-2xl flex flex-col items-center"
+        >
+          {/* Decorative Tag */}
+          <div className="mb-8 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-white/90 text-sm flex items-center space-x-2 cursor-pointer hover:bg-white/10 transition-colors">
+            <Sparkles className="w-4 h-4 opacity-70" />
+            <span className="tracking-wide">New Dimension</span>
+          </div>
+
+          {/* Big Heading */}
+          <h1 className="text-4xl md:text-5xl font-bold text-white text-center tracking-tight leading-[1.1] mb-12">
+            Hushh! What's not to like<br />about connecting?
+          </h1>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-lg space-y-4 flex flex-col items-center">
+            {/* Input Row for Email */}
+            <div className="w-full relative">
+              <input
+                {...register('email', { required: 'Email is required' })}
+                type="email"
+                placeholder="Email address"
+                className="w-full px-6 py-4 rounded-full bg-white text-black placeholder-gray-500 text-lg focus:outline-none focus:ring-4 focus:ring-purple-500/30 transition-shadow font-medium shadow-xl"
+              />
+              {errors.email && (
+                <p className="text-red-400 text-sm mt-2 ml-4 absolute -bottom-6">{errors.email.message}</p>
+              )}
+            </div>
+
+            {/* Input Row for Password */}
+            <div className="w-full relative mt-6">
+              <input
+                {...register('password', { required: 'Password is required' })}
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Password"
+                className="w-full px-6 py-4 rounded-full bg-[#111] backdrop-blur-xl border border-white/10 text-white placeholder-gray-400 text-lg focus:outline-none focus:ring-2 focus:ring-white/20 transition-all font-medium"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-6 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+              {errors.password && (
+                <p className="text-red-400 text-sm mt-2 ml-4 absolute -bottom-6">{errors.password.message}</p>
+              )}
+            </div>
+
+            {/* Buttons Row */}
+            <div className="w-full flex space-x-4 pt-6">
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex-[1.2] py-4 px-6 rounded-full bg-white text-black font-semibold text-lg hover:bg-gray-100 disabled:opacity-70 transition-colors shadow-xl flex justify-center items-center"
+              >
+                {loading ? <div className="w-6 h-6 border-2 border-black/30 border-t-black rounded-full animate-spin" /> : 'Login'}
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/register')}
+                className="flex-1 py-4 px-6 rounded-full bg-[#111] border border-white/10 text-white/90 font-semibold text-lg hover:bg-[#1a1a1a] transition-colors"
+              >
+                Register
+              </button>
+            </div>
+          </form>
+        </motion.div>
+      </div>
+
+      {/* Demo toggle at bottom right */}
+      <div
+        onClick={fillDemoCreds}
+        className="fixed bottom-8 right-8 flex items-center space-x-3 text-white/50 text-sm font-medium z-20 cursor-pointer hover:text-white transition-colors group"
+      >
+        <span>Demo Content</span>
+        <div className="w-10 h-6 bg-white/20 rounded-full p-1 relative flex items-center group-hover:bg-white/30 transition-colors">
+          <div className="w-4 h-4 rounded-full bg-white absolute right-1"></div>
+        </div>
+      </div>
     </div>
   )
 }

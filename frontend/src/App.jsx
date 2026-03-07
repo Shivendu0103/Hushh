@@ -4,8 +4,7 @@ import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './context/AuthContext'
 import { SocketProvider } from './context/SocketContext'  // Add this import
 import ProtectedRoute from './components/auth/ProtectedRoute'
-import LoginForm from './components/auth/LoginForm'
-import RegisterForm from './components/auth/RegisterForm'
+import LandingPage from './pages/LandingPage'
 import Header from './components/common/Header'
 import PostFeed from './components/posts/PostFeed'
 import Messages from './pages/Messages'
@@ -49,8 +48,8 @@ function App() {
               </div>
               <div className="relative z-10">
                 <Routes>
-                  <Route path="/login" element={<LoginForm />} />
-                  <Route path="/register" element={<RegisterForm />} />
+                  <Route path="/login" element={<LandingPage />} />
+                  <Route path="/register" element={<LandingPage />} />
                   <Route path="/*" element={
                     <ProtectedRoute>
                       <Header />
