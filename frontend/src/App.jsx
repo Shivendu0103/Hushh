@@ -12,7 +12,6 @@ import Profile from './pages/Profile'
 import Settings from './pages/Settings'
 import FloatingButton from './components/ui/FloatingButton'
 import LiquidBackground from './components/ui/LiquidBackground'
-import Ballpit from './components/ui/Ballpit'
 
 function Home() {
   return (
@@ -35,16 +34,7 @@ function App() {
           <Router>
             <div className="min-h-screen relative bg-transparent">
               <div className="fixed inset-0 z-0 w-full h-screen overflow-hidden pointer-events-none">
-                <Ballpit
-                  count={150}
-                  gravity={0.01}
-                  friction={0.9975}
-                  wallBounce={0.95}
-                  followCursor={true}
-                  colors={[0x000000, 0xffffff, 0x8338ec, 0x111111, 0x4b0082]}
-                  ambientIntensity={2}
-                  lightIntensity={300}
-                />
+                {/* Background removed as requested */}
               </div>
               <div className="relative z-10">
                 <Routes>
