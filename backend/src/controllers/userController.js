@@ -39,7 +39,6 @@ const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.params.id)
       .select('-password')
-      .populate('connections.user', 'username profile')
 
     if (!user) {
       return res.status(404).json({
