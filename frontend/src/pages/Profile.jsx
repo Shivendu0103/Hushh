@@ -1,7 +1,11 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
+import { useParams } from 'react-router-dom'
+import { useQuery } from 'react-query'
+import api from '../utils/api'
 import ProfileHeader from '../components/profile/ProfileHeader'
+import EditProfileModal from '../components/profile/EditProfileModal'
 import AchievementShowcase from '../components/gamification/AchievementShowcase'
 import PostCard from '../components/posts/PostCard'
 import LiquidBackground from '../components/ui/LiquidBackground'
@@ -11,38 +15,46 @@ import { Edit, Music, Settings } from 'lucide-react'
 
 const Profile = () => {
   const { user } = useAuth()
-  const [isEditing, setIsEditing] = useState(false)
+  const { id } = useParams()
+  const targetUserId = id || user?.id
 
-  // Sample user posts
-  const userPosts = [
-    {
-      id: 1,
-      author: {
-        username: user?.username || 'you',
-        displayName: user?.profile?.displayName || user?.username || 'You',
-        avatar: user?.profile?.avatar || '/default-avatar.png'
-      },
-      content: "Just launched my epic social media platform Hushh! 🔥✨ The glassmorphism effects are absolutely insane!",
-      media: [],
-      likes: 25,
-      comments: 8,
-      shares: 3,
-      mood: { name: 'fire', emoji: '🔥', color: 'from-red-500 to-orange-500', label: 'On Fire' },
-      createdAt: new Date(Date.now() - 30 * 60 * 1000)
-    }
-  ]
+  const { data: profileData, isLoading: profileLoading } = useQuery(
+    ['user', targetUserId], 
+    async () => {
+      const res = await api.get(`/users/${targetUserId}`)
+      return res.user
+    },
+    { enabled: !!targetUserId }
+  )
 
-  const userStats = {
-    posts: userPosts.length,
-    following: 42,
-    followers: 128,
-    ...user?.stats
+  const { data: userPosts = [], isLoading: postsLoading } = useQuery(
+    ['posts', targetUserId], 
+    async () => {
+      const res = await api.get(`/posts?author=${targetUserId}`)
+      return res.posts
+    },
+    { enabled: !!targetUserId }
+  )
+
+  if (profileLoading) {
+    return (
+      <div className="min-h-screen relative flex items-center justify-center">
+        <LiquidBackground />
+        <div className="relative z-10 text-white text-xl">Loading Profile Views...</div>
+      </div>
+    )
   }
 
-  const userWithStats = {
-    ...user,
-    stats: userStats
+  if (!profileData) {
+    return (
+      <div className="min-h-screen relative flex items-center justify-center">
+        <LiquidBackground />
+        <div className="relative z-10 text-white text-xl">User not found dimension.</div>
+      </div>
+    )
   }
+
+  const isOwn = !id || id === user?.id
 
   return (
     <div className="min-h-screen relative">
@@ -56,18 +68,18 @@ const Profile = () => {
         >
           {/* Profile Header */}
           <ProfileHeader 
-            user={userWithStats}
-            isOwn={true}
+            user={profileData}
+            isOwn={isOwn}
             onEditProfile={() => setIsEditing(true)}
           />
 
           {/* Stats Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: 'Total Posts', value: userStats.posts, icon: '📝', color: 'from-blue-500 to-cyan-500' },
-              { label: 'Vibers', value: userStats.followers, icon: '👥', color: 'from-purple-500 to-pink-500' },
-              { label: 'Vibing', value: userStats.following, icon: '🤝', color: 'from-green-500 to-emerald-500' },
-              { label: 'Level', value: user?.gamification?.level || 1, icon: '🏆', color: 'from-yellow-500 to-orange-500' }
+              { label: 'Total Posts', value: profileData?.stats?.posts || 0, icon: '📝', color: 'from-blue-500 to-cyan-500' },
+              { label: 'Vibers', value: profileData?.stats?.followers || 0, icon: '👥', color: 'from-purple-500 to-pink-500' },
+              { label: 'Vibing', value: profileData?.stats?.following || 0, icon: '🤝', color: 'from-green-500 to-emerald-500' },
+              { label: 'Level', value: profileData?.gamification?.level || 1, icon: '🏆', color: 'from-yellow-500 to-orange-500' }
             ].map((stat, index) => (
               <motion.div
                 key={stat.label}
@@ -85,28 +97,38 @@ const Profile = () => {
           </div>
 
           {/* Achievements */}
-          <AchievementShowcase achievements={user?.gamification?.achievements || []} />
+          <AchievementShowcase achievements={profileData?.gamification?.achievements || []} />
 
           {/* Recent Posts */}
           <div>
             <h3 className="text-2xl font-bold neon-text mb-6 flex items-center">
               <Edit className="w-6 h-6 mr-2" />
-              Your Posts
+              {isOwn ? 'Your Posts' : `${profileData?.profile?.displayName || profileData.username}'s Posts`}
             </h3>
-            <div className="space-y-6">
-              {userPosts.map((post) => (
-                <PostCard
-                  key={post.id}
-                  post={post}
-                  onLike={() => {}}
-                  onComment={() => {}}
-                  onShare={() => {}}
-                />
-              ))}
-            </div>
+            
+            {postsLoading ? (
+              <div className="text-gray-400">Loading posts matrix...</div>
+            ) : userPosts.length > 0 ? (
+              <div className="space-y-6">
+                {userPosts.map((post) => (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                  />
+                ))}
+              </div>
+            ) : (
+                <div className="text-gray-500">No signals found in this sector yet.</div>
+            )}
           </div>
         </motion.div>
       </div>
+
+      <EditProfileModal 
+        isOpen={isEditing} 
+        onClose={() => setIsEditing(false)} 
+        user={profileData} 
+      />
     </div>
   )
 }

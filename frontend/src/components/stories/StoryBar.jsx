@@ -2,11 +2,9 @@ import { useState, useRef, useEffect } from 'react'
 import { Plus } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
-import axios from 'axios'
 import toast from 'react-hot-toast'
+import api from '../../utils/api'
 import StoryViewer from './StoryViewer'
-
-const API_URL = import.meta.env.VITE_API_URL
 
 export default function StoryBar() {
     const { user } = useAuth()
@@ -15,16 +13,15 @@ export default function StoryBar() {
     const queryClient = useQueryClient()
 
     const { data: storyData = [] } = useQuery('stories', async () => {
-        const res = await axios.get(`${API_URL}/stories`, { withCredentials: true })
-        return res.data.users
+        const res = await api.get('/stories')
+        return res.users || []
     })
 
     // Add dummy image mechanism to simulate upload without a real backend file uploader for now
     const addStoryMutation = useMutation(async () => {
-        // Generate a placeholder background image for the story
-        const randomImg = `https://picsum.photos/seed/${Math.random()}/1080/1920`
-        const res = await axios.post(`${API_URL}/stories`, { mediaUrl: randomImg }, { withCredentials: true })
-        return res.data
+        const randomImg = `https://picsum.photos/seed/${Math.floor(Math.random() * 1000)}/1080/1920`
+        const res = await api.post('/stories', { mediaUrl: randomImg })
+        return res
     }, {
         onSuccess: () => {
             queryClient.invalidateQueries('stories')

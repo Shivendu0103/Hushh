@@ -4,9 +4,27 @@ import { useState } from 'react'
 import GlassCard from '../ui/GlassCard'
 import NeonButton from '../ui/NeonButton'
 import StatusBanner from './StatusBanner'
+import { useMutation, useQueryClient } from 'react-query'
+import api from '../../utils/api'
+import toast from 'react-hot-toast'
 
 const ProfileHeader = ({ user, isOwn = false, onEditProfile }) => {
   const [chaosMode, setChaosMode] = useState(user?.preferences?.chaosMode || false)
+  const queryClient = useQueryClient()
+
+  const followMutation = useMutation(
+    async () => {
+      const res = await api.post(`/users/connect/${user._id}`)
+      return res
+    },
+    {
+      onSuccess: () => {
+        toast.success('Connection request sent!')
+        queryClient.invalidateQueries(['user', user._id])
+      },
+      onError: () => toast.error('Failed to connect')
+    }
+  )
 
   return (
     <div className="relative">
@@ -127,7 +145,13 @@ const ProfileHeader = ({ user, isOwn = false, onEditProfile }) => {
                 </>
               ) : (
                 <>
-                  <NeonButton size="sm">Follow</NeonButton>
+                  <NeonButton 
+                    size="sm" 
+                    onClick={() => followMutation.mutate()}
+                    disabled={followMutation.isLoading}
+                  >
+                    {followMutation.isLoading ? 'Connecting...' : 'Connect'}
+                  </NeonButton>
                   <NeonButton variant="secondary" size="sm">Message</NeonButton>
                 </>
               )}

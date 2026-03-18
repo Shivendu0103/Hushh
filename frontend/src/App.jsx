@@ -47,6 +47,7 @@ function App() {
                         <Route path="/" element={<Home />} />
                         <Route path="/messages" element={<Messages />} />
                         <Route path="/profile" element={<Profile />} />
+                        <Route path="/profile/:id" element={<Profile />} />
                         <Route path="/settings" element={<Settings />} />
                       </Routes>
                     </ProtectedRoute>

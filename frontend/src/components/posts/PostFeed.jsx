@@ -1,24 +1,38 @@
 import { motion } from 'framer-motion'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
-import axios from 'axios'
 import toast from 'react-hot-toast'
+import api from '../../utils/api'
 import PostCard from './PostCard'
+import CreatePost from './CreatePost'
 import StoryBar from '../stories/StoryBar'
 
-const API_URL = import.meta.env.VITE_API_URL
 
 const PostFeed = () => {
   const queryClient = useQueryClient()
 
   const { data: posts = [], isLoading } = useQuery('posts', async () => {
-    const res = await axios.get(`${API_URL}/posts`, { withCredentials: true })
-    return res.data.posts
+    const res = await api.get('/posts')
+    return res.posts
   })
+
+  const createMutation = useMutation(
+    async (newPost) => {
+      const res = await api.post('/posts', newPost)
+      return res
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('posts')
+        toast.success('Post created!')
+      },
+      onError: (err) => toast.error(err.message || 'Failed to create post')
+    }
+  )
 
   const likeMutation = useMutation(
     async (postId) => {
-      const res = await axios.post(`${API_URL}/posts/${postId}/like`, {}, { withCredentials: true })
-      return res.data
+      const res = await api.post(`/posts/${postId}/like`)
+      return res
     },
     {
       onSuccess: () => queryClient.invalidateQueries('posts'),
@@ -28,8 +42,8 @@ const PostFeed = () => {
 
   const commentMutation = useMutation(
     async ({ postId, content }) => {
-      const res = await axios.post(`${API_URL}/posts/${postId}/comment`, { content }, { withCredentials: true })
-      return res.data
+      const res = await api.post(`/posts/${postId}/comment`, { content })
+      return res
     },
     {
       onSuccess: () => {
@@ -42,8 +56,8 @@ const PostFeed = () => {
 
   const shareMutation = useMutation(
     async (postId) => {
-      const res = await axios.post(`${API_URL}/posts/${postId}/share`, {}, { withCredentials: true })
-      return res.data
+      const res = await api.post(`/posts/${postId}/share`)
+      return res
     },
     {
       onSuccess: () => {
@@ -56,8 +70,8 @@ const PostFeed = () => {
 
   const deleteMutation = useMutation(
     async (postId) => {
-      const res = await axios.delete(`${API_URL}/posts/${postId}`, { withCredentials: true })
-      return res.data
+      const res = await api.delete(`/posts/${postId}`)
+      return res
     },
     {
       onSuccess: () => {
@@ -78,6 +92,8 @@ const PostFeed = () => {
       </div>
 
       <StoryBar />
+
+      <CreatePost onPostCreate={(data) => createMutation.mutate(data)} />
 
       {isLoading ? (
         <div className="text-center text-gray-400">Loading vibes...</div>

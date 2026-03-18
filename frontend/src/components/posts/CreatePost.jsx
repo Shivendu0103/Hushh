@@ -27,19 +27,9 @@ const CreatePost = ({ onPostCreate }) => {
     if (!content.trim()) return
 
     const newPost = {
-      id: Date.now(),
-      author: {
-        username: user.username,
-        displayName: user.profile?.displayName || user.username,
-        avatar: user.profile?.avatar || '/default-avatar.png'
-      },
       content,
+      mood: mood || null,
       media,
-      mood: mood ? moods.find(m => m.name === mood) : null,
-      likes: 0,
-      comments: 0,
-      shares: 0,
-      createdAt: new Date()
     }
 
     onPostCreate?.(newPost)

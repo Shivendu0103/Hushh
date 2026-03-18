@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
+import { Link } from 'react-router-dom'
 import { Heart, MessageCircle, Share, MoreHorizontal, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import GlassCard from '../ui/GlassCard'
@@ -66,21 +67,25 @@ const PostCard = ({ post, onLike, onComment, onShare, onDelete }) => {
         {/* Post Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <motion.div
-              className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-cyan-500 p-0.5"
-              whileHover={{ scale: 1.05 }}
-            >
-              <img
-                src={post.author.avatar || "/default-avatar.png"}
-                alt={post.author.name}
-                className="w-full h-full rounded-full object-cover"
-              />
-            </motion.div>
+            <Link to={`/profile/${post.author.id}`} className="block">
+              <motion.div
+                className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-cyan-500 p-0.5"
+                whileHover={{ scale: 1.05 }}
+              >
+                <img
+                  src={post.author.avatar || "/default-avatar.png"}
+                  alt={post.author.name}
+                  className="w-full h-full rounded-full object-cover"
+                />
+              </motion.div>
+            </Link>
 
             <div>
-              <h3 className="font-bold text-white hover:neon-text cursor-pointer transition-all">
-                {post.author.displayName || post.author.username}
-              </h3>
+              <Link to={`/profile/${post.author.id}`}>
+                <h3 className="font-bold text-white hover:neon-text cursor-pointer transition-all">
+                  {post.author.displayName || post.author.username}
+                </h3>
+              </Link>
               <p className="text-sm text-gray-400">
                 @{post.author.username} • {formatTimeAgo(post.createdAt)}
               </p>

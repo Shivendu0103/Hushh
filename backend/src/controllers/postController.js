@@ -63,14 +63,16 @@ const getAllPosts = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10
     const skip = (page - 1) * limit
 
-    const posts = await Post.find()
+    const filter = req.query.author ? { author: req.query.author } : {}
+
+    const posts = await Post.find(filter)
       .populate('author', 'username profile')
       .populate('comments.author', 'username profile')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
 
-    const totalPosts = await Post.countDocuments()
+    const totalPosts = await Post.countDocuments(filter)
 
     res.json({
       success: true,
@@ -86,7 +88,7 @@ const getAllPosts = async (req, res) => {
         mood: post.mood,
         media: post.media,
         likes: post.likes.length,
-        comments: post.comments.length,
+        comments: post.comments,
         shares: post.shares || 0,
         createdAt: post.createdAt,
         likedByUser: req.user ? post.likes.includes(req.user.id) : false
