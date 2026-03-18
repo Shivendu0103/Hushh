@@ -1,0 +1,49 @@
+// Only include real sponsors with imageUrl - placeholders are handled in display components
+export const diamondSponsors = [
+  {
+    id: 1,
+    name: 'shadcnblocks.com',
+    imageUrl: '/assets/sponsors/shadcnblocks.svg',
+    url: 'https://www.shadcnblocks.com/'
+  },
+  {
+    id: 1,
+    name: 'shadcn studio',
+    imageUrl: '/assets/sponsors/shadcnstudio.svg',
+    url: 'https://shadcnstudio.com/'
+  }
+];
+
+export const platinumSponsors = [];
+
+export const silverSponsors = [
+  {
+    id: 1,
+    name: 'Next.js Weekly',
+    imageUrl: '/assets/sponsors/nextjsweekly.svg',
+    url: 'https://nextjsweekly.com/'
+  },
+  {
+    id: 2,
+    name: 'Shadcraft',
+    imageUrl: '/assets/sponsors/shadcraft.svg',
+    url: 'https://shadcraft.com/'
+  },
+  {
+    id: 3,
+    name: 'Efferd',
+    imageUrl: '/assets/sponsors/efferd.svg',
+    url: 'https://efferd.com/'
+  },
+  {
+    id: 4,
+    name: 'shadcnspace',
+    imageUrl: '/assets/sponsors/shadcnspace.svg',
+    url: 'https://shadcnspace.com/'
+  }
+];
+
+export const hasSponsors = diamondSponsors.length > 0 || platinumSponsors.length > 0 || silverSponsors.length > 0;
+export const hasDiamondSponsors = diamondSponsors.length > 0;
+export const hasPlatinumSponsors = platinumSponsors.length > 0;
+export const hasSilverSponsors = silverSponsors.length > 0;
