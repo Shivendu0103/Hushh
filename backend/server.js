@@ -15,6 +15,7 @@ const userRoutes = require('./src/routes/users')
 const postRoutes = require('./src/routes/posts')
 const messageRoutes = require('./src/routes/messages')
 const storyRoutes = require('./src/routes/stories')
+const uploadRoutes = require('./src/routes/uploadRoutes')
 
 // Import models
 const Message = require('./src/models/Message')
@@ -75,6 +76,7 @@ app.use('/api/users', userRoutes)
 app.use('/api/posts', postRoutes)
 app.use('/api/messages', messageRoutes)
 app.use('/api/stories', storyRoutes)
+app.use('/api/upload', uploadRoutes)
 
 // Socket.io real-time features
 const activeUsers = new Map()

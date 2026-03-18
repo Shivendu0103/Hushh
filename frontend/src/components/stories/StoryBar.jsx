@@ -17,20 +17,38 @@ export default function StoryBar() {
         return res.users || []
     })
 
-    // Add dummy image mechanism to simulate upload without a real backend file uploader for now
-    const addStoryMutation = useMutation(async () => {
-        const randomImg = `https://picsum.photos/seed/${Math.floor(Math.random() * 1000)}/1080/1920`
-        const res = await api.post('/stories', { mediaUrl: randomImg })
+    // Real file upload mechanism
+    const addStoryMutation = useMutation(async (mediaUrl) => {
+        const res = await api.post('/stories', { mediaUrl })
         return res
     }, {
         onSuccess: () => {
             queryClient.invalidateQueries('stories')
-            toast.success('Story added!')
         }
     })
 
-    const handleCreateClick = () => {
-        addStoryMutation.mutate()
+    const handleFileSelect = async (e) => {
+        const file = e.target.files[0]
+        if (!file) return
+
+        const toastId = toast.loading('Uploading story...')
+        try {
+            const formData = new FormData()
+            formData.append('story', file)
+
+            const uploadRes = await api.post('/upload/story', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            })
+
+            if (uploadRes.success) {
+                await addStoryMutation.mutateAsync(uploadRes.mediaUrl)
+                toast.success('Story added!', { id: toastId })
+            }
+        } catch (error) {
+            toast.error(error.message || 'Failed to upload story', { id: toastId })
+        } finally {
+            if (fileInputRef.current) fileInputRef.current.value = ''
+        }
     }
 
     return (
@@ -38,8 +56,15 @@ export default function StoryBar() {
             <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x px-2">
                 {/* Add Story Button */}
                 <div className="flex flex-col items-center gap-2 flex-shrink-0 snap-start">
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileSelect}
+                        accept="image/*,video/*"
+                        className="hidden"
+                    />
                     <div
-                        onClick={handleCreateClick}
+                        onClick={() => fileInputRef.current?.click()}
                         className="w-16 h-16 rounded-full glass-panel flex items-center justify-center border-2 border-dashed border-primary-500 cursor-pointer relative group overflow-hidden"
                     >
                         {user?.profile?.avatar ? (

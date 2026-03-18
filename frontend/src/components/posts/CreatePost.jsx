@@ -1,9 +1,12 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Image, Video, Smile, MapPin, Hash, X, Zap } from 'lucide-react'
+import { Image, Video, Smile, MapPin, Hash, X, Zap, Loader } from 'lucide-react'
 import GlassCard from '../ui/GlassCard'
 import NeonButton from '../ui/NeonButton'
 import { useAuth } from '../../context/AuthContext'
+import api from '../../utils/api'
+import toast from 'react-hot-toast'
+import { useRef } from 'react'
 
 const CreatePost = ({ onPostCreate }) => {
   const { user } = useAuth()
@@ -11,7 +14,9 @@ const CreatePost = ({ onPostCreate }) => {
   const [mood, setMood] = useState('')
   const [isExpanded, setIsExpanded] = useState(false)
   const [media, setMedia] = useState([])
+  const [isUploading, setIsUploading] = useState(false)
   const [showMoodPicker, setShowMoodPicker] = useState(false)
+  const fileInputRef = useRef(null)
 
   const moods = [
     { name: 'fire', emoji: '🔥', color: 'from-red-500 to-orange-500', label: 'On Fire' },
@@ -29,7 +34,7 @@ const CreatePost = ({ onPostCreate }) => {
     const newPost = {
       content,
       mood: mood || null,
-      media,
+      media: media.map(m => ({ url: m.url, type: m.type })),
     }
 
     onPostCreate?.(newPost)
@@ -38,6 +43,36 @@ const CreatePost = ({ onPostCreate }) => {
     setMedia([])
     setIsExpanded(false)
     setShowMoodPicker(false)
+  }
+
+  const handleFileSelect = async (e) => {
+    const files = Array.from(e.target.files)
+    if (!files.length) return
+
+    setIsUploading(true)
+    const toastId = toast.loading('Uploading media...')
+
+    try {
+      const formData = new FormData()
+      files.forEach(file => formData.append('media', file))
+
+      const res = await api.post('/upload/post', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+
+      if (res.success) {
+        setMedia(prev => [...prev, ...res.media])
+        toast.success('Media uploaded!', { id: toastId })
+      }
+    } catch (error) {
+      toast.error(error.message || 'Failed to upload media', { id: toastId })
+    } finally {
+      setIsUploading(false)
+      // Reset input so the same files can be selected again
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
   }
 
   const selectedMood = moods.find(m => m.name === mood)
@@ -106,11 +141,11 @@ const CreatePost = ({ onPostCreate }) => {
                     className="relative rounded-lg overflow-hidden"
                     whileHover={{ scale: 1.02 }}
                   >
-                    <img
-                      src={item.preview}
-                      alt="Upload preview"
-                      className="w-full h-32 object-cover"
-                    />
+                    {item.type === 'video' ? (
+                      <video src={item.url} className="w-full h-32 object-cover" />
+                    ) : (
+                      <img src={item.url} alt="Upload preview" className="w-full h-32 object-cover" />
+                    )}
                     <button
                       type="button"
                       onClick={() => setMedia(media.filter((_, i) => i !== index))}
@@ -190,25 +225,27 @@ const CreatePost = ({ onPostCreate }) => {
               >
                 {/* Media Buttons */}
                 <div className="flex items-center space-x-2">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileSelect}
+                    multiple
+                    accept="image/*,video/*"
+                    className="hidden"
+                  />
                   <motion.button
                     type="button"
+                    onClick={() => fileInputRef.current && fileInputRef.current.click()}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-blue-400 transition-all"
-                    title="Add Image"
+                    title="Add Media"
+                    disabled={isUploading}
                   >
-                    <Image className="w-5 h-5" />
+                    {isUploading ? <Loader className="w-5 h-5 animate-spin" /> : <Image className="w-5 h-5" />}
                   </motion.button>
                   
-                  <motion.button
-                    type="button"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-green-400 transition-all"
-                    title="Add Video"
-                  >
-                    <Video className="w-5 h-5" />
-                  </motion.button>
+
                   
                   <motion.button
                     type="button"
@@ -239,7 +276,7 @@ const CreatePost = ({ onPostCreate }) => {
                 {/* Post Button */}
                 <NeonButton
                   type="submit"
-                  disabled={!content.trim()}
+                  disabled={!content.trim() || isUploading}
                   size="sm"
                   icon={<Zap />}
                   className="min-w-[100px]"
