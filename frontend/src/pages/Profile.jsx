@@ -15,6 +15,7 @@ import { Edit, Music, Settings } from 'lucide-react'
 
 const Profile = () => {
   const { user } = useAuth()
+  const [isEditing, setIsEditing] = useState(false)
   const { id } = useParams()
   const targetUserId = id || user?.id
 
