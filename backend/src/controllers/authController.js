@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken')
 const User = require('../models/User')
 const { validationResult } = require('express-validator')
+const { verifyFirebaseToken } = require('../config/firebaseAdmin')
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -151,4 +152,126 @@ const getMe = async (req, res) => {
   }
 }
 
-module.exports = { register, login, getMe }
+// @desc    Firebase auth - create/login user via Firebase token
+// @route   POST /api/auth/firebase
+const firebaseAuth = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ success: false, message: 'No Firebase token provided' })
+    }
+
+    const idToken = authHeader.split(' ')[1]
+
+    // Verify with Firebase Admin (if configured)
+    let firebaseUser = null
+    const decoded = await verifyFirebaseToken(idToken)
+    if (decoded) {
+      firebaseUser = decoded
+    } else {
+      // Firebase admin not configured — trust the client-side data for dev
+      console.warn('⚠️  Firebase token not verified (admin not configured). Using request body.')
+    }
+
+    const { uid, email, displayName, photoURL, username, provider } = req.body
+
+    // Use verified data if available, else fall back to body
+    const firebaseUid = firebaseUser?.uid || uid
+    const firebaseEmail = firebaseUser?.email || email
+
+    if (!firebaseUid || !firebaseEmail) {
+      return res.status(400).json({ success: false, message: 'Invalid Firebase user data' })
+    }
+
+    // Find existing user by Firebase UID or email
+    let user = await User.findOne({
+      $or: [{ firebaseUid: firebaseUid }, { email: firebaseEmail }]
+    })
+
+    if (user) {
+      // Update Firebase UID if not set (linking existing account)
+      if (!user.firebaseUid) {
+        user.firebaseUid = firebaseUid
+        await user.save()
+      }
+      // Update online status
+      user.isOnline = true
+      user.lastSeen = new Date()
+      await user.save()
+    } else {
+      // Create new user from Firebase data
+      // Generate a unique username if not provided
+      let finalUsername = username
+      if (!finalUsername) {
+        // Derive from email or displayName
+        const base = (displayName || email.split('@')[0])
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, '')
+          .substring(0, 15)
+        finalUsername = base || 'user'
+        
+        // Ensure uniqueness
+        let counter = 0
+        let candidate = finalUsername
+        while (await User.findOne({ username: candidate })) {
+          counter++
+          candidate = `${finalUsername}${counter}`
+        }
+        finalUsername = candidate
+      } else {
+        // Ensure the provided username is unique
+        let counter = 0
+        let candidate = finalUsername
+        while (await User.findOne({ username: candidate })) {
+          counter++
+          candidate = `${finalUsername}${counter}`
+        }
+        finalUsername = candidate
+      }
+
+      // Random password for Firebase users (they won't use it)
+      const randomPassword = Math.random().toString(36) + Math.random().toString(36)
+
+      user = await User.create({
+        username: finalUsername,
+        email: firebaseEmail,
+        password: randomPassword,
+        firebaseUid: firebaseUid,
+        profile: {
+          displayName: displayName || finalUsername,
+          avatar: photoURL || ''
+        },
+        gamification: {
+          achievements: [{
+            name: 'Welcome to Hushh',
+            emoji: '🎉',
+            unlockedAt: new Date()
+          }]
+        }
+      })
+    }
+
+    // Generate our custom JWT
+    const token = generateToken(user._id)
+
+    res.json({
+      success: true,
+      message: `🔥 Welcome${user.createdAt === user.updatedAt ? ' to Hushh' : ' back'}, ${user.profile.displayName || user.username}!`,
+      token,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        profile: user.profile,
+        gamification: user.gamification,
+        preferences: user.preferences
+      }
+    })
+
+  } catch (error) {
+    console.error('Firebase auth error:', error)
+    res.status(500).json({ success: false, message: 'Server error during Firebase auth' })
+  }
+}
+
+module.exports = { register, login, getMe, firebaseAuth }

@@ -145,9 +145,9 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
                         ) : (
                             <GlassCard className="p-8 space-y-6" variant="neon">
                                 {mode === 'register' ? (
-                                    <AceternitySignup onSwitchToLogin={() => setMode('login')} />
+                                    <AceternitySignup onSwitchToLogin={() => setMode('login')} onClose={onClose} />
                                 ) : (
-                                    <AceternityLogin onSwitchToRegister={() => setMode('register')} />
+                                    <AceternityLogin onSwitchToRegister={() => setMode('register')} onClose={onClose} />
                                 )}
                             </GlassCard>
                         )}

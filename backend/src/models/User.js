@@ -61,7 +61,8 @@ const userSchema = new mongoose.Schema({
     }
   },
   isOnline: { type: Boolean, default: false },
-  lastSeen: { type: Date, default: Date.now }
+  lastSeen: { type: Date, default: Date.now },
+  firebaseUid: { type: String, sparse: true, index: true }  // links to Firebase user
 }, { 
   timestamps: true 
 })
