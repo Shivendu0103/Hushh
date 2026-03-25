@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { useParams } from 'react-router-dom'
-import { useQuery } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from 'react-query'
 import api from '../utils/api'
+import toast from 'react-hot-toast'
 import ProfileHeader from '../components/profile/ProfileHeader'
 import EditProfileModal from '../components/profile/EditProfileModal'
 import AchievementShowcase from '../components/gamification/AchievementShowcase'
@@ -18,6 +19,7 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false)
   const { id } = useParams()
   const targetUserId = id || user?.id
+  const queryClient = useQueryClient()
 
   const { data: profileData, isLoading: profileLoading } = useQuery(
     ['user', targetUserId], 
@@ -35,6 +37,59 @@ const Profile = () => {
       return res.posts
     },
     { enabled: !!targetUserId }
+  )
+
+  const likeMutation = useMutation(
+    async (postId) => {
+      const res = await api.post(`/posts/${postId}/like`)
+      return res
+    },
+    {
+      onSuccess: () => queryClient.invalidateQueries(['posts', targetUserId]),
+      onError: () => toast.error('Failed to like post')
+    }
+  )
+
+  const commentMutation = useMutation(
+    async ({ postId, content }) => {
+      const res = await api.post(`/posts/${postId}/comment`, { content })
+      return res
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['posts', targetUserId])
+        toast.success('Comment added!')
+      },
+      onError: () => toast.error('Failed to add comment')
+    }
+  )
+
+  const shareMutation = useMutation(
+    async (postId) => {
+      const res = await api.post(`/posts/${postId}/share`)
+      return res
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['posts', targetUserId])
+        toast.success('Post shared!')
+      },
+      onError: () => toast.error('Failed to share post')
+    }
+  )
+
+  const deleteMutation = useMutation(
+    async (postId) => {
+      const res = await api.delete(`/posts/${postId}`)
+      return res
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['posts', targetUserId])
+        toast.success('Post deleted')
+      },
+      onError: () => toast.error('Failed to delete post')
+    }
   )
 
   if (profileLoading) {
@@ -115,6 +170,10 @@ const Profile = () => {
                   <PostCard
                     key={post.id}
                     post={post}
+                    onLike={(id) => likeMutation.mutate(id)}
+                    onComment={(id, content) => commentMutation.mutate({ postId: id, content })}
+                    onShare={(id) => shareMutation.mutate(id)}
+                    onDelete={(id) => deleteMutation.mutate(id)}
                   />
                 ))}
               </div>

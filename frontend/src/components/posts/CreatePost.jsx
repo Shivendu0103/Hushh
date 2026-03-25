@@ -31,9 +31,11 @@ const CreatePost = ({ onPostCreate }) => {
     e.preventDefault()
     if (!content.trim()) return
 
+    const selectedMood = mood ? moods.find(m => m.name === mood) : null
+
     const newPost = {
       content,
-      mood: mood || null,
+      mood: selectedMood || null,
       media: media.map(m => ({ url: m.url, type: m.type })),
     }
 
