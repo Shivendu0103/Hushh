@@ -65,7 +65,21 @@ const Header = () => {
           </nav>
 
           {/* Right Section */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            {/* Mobile Messages */}
+            <Link to="/messages" className="md:hidden relative p-2 rounded-full glass hover:bg-white/20 transition-all">
+              <MessageCircle className="w-5 h-5 text-white" />
+              {notifications > 0 && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+                >
+                  {notifications}
+                </motion.span>
+              )}
+            </Link>
+
             {/* Search */}
             <button className="p-2 rounded-full glass hover:bg-white/20 transition-all">
               <Search className="w-5 h-5 text-white" />
