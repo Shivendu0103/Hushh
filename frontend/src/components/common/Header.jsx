@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion'
-import { Home, MessageCircle, User, Settings, LogOut, Bell, Search } from 'lucide-react'
+import { Home, MessageCircle, User, Settings, LogOut, Bell, Search, Menu } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
+import { SidebarTrigger } from '../animate-ui/components/radix/sidebar'
 
 const Header = () => {
   const { user, logout } = useAuth()
@@ -24,15 +25,18 @@ const Header = () => {
     >
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <motion.h1
-              className="text-2xl font-black neon-text"
-              whileHover={{ scale: 1.05 }}
-            >
-              Hushh ✨
-            </motion.h1>
-          </Link>
+          <div className="flex items-center space-x-4">
+            <SidebarTrigger />
+            {/* Logo */}
+            <Link to="/" className="flex items-center space-x-2">
+              <motion.h1
+                className="text-2xl font-black neon-text"
+                whileHover={{ scale: 1.05 }}
+              >
+                Hushh ✨
+              </motion.h1>
+            </Link>
+          </div>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">

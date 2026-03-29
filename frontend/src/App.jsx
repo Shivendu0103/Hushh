@@ -12,6 +12,8 @@ import Profile from './pages/Profile'
 import Settings from './pages/Settings'
 import FloatingButton from './components/ui/FloatingButton'
 import LiquidBackground from './components/ui/LiquidBackground'
+import { SidebarProvider, SidebarInset } from './components/animate-ui/components/radix/sidebar'
+import { AppSidebar } from './components/common/AppSidebar'
 
 function Home() {
   return (
@@ -42,14 +44,19 @@ function App() {
                   <Route path="/register" element={<LandingPage />} />
                   <Route path="/*" element={
                     <ProtectedRoute>
-                      <Header />
-                      <Routes>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/messages" element={<Messages />} />
-                        <Route path="/profile" element={<Profile />} />
-                        <Route path="/profile/:id" element={<Profile />} />
-                        <Route path="/settings" element={<Settings />} />
-                      </Routes>
+                      <SidebarProvider>
+                        <AppSidebar />
+                        <SidebarInset className="bg-transparent flex-1 w-full min-h-screen">
+                          <Header />
+                          <Routes>
+                            <Route path="/" element={<Home />} />
+                            <Route path="/messages" element={<Messages />} />
+                            <Route path="/profile" element={<Profile />} />
+                            <Route path="/profile/:id" element={<Profile />} />
+                            <Route path="/settings" element={<Settings />} />
+                          </Routes>
+                        </SidebarInset>
+                      </SidebarProvider>
                     </ProtectedRoute>
                   } />
                 </Routes>

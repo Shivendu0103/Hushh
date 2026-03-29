@@ -1,0 +1,20 @@
+
+> hushh-frontend@0.0.0 build
+> vite build
+
+[36mvite v4.5.14 [32mbuilding for production...[36m[39m
+transforming...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+Browserslist: browsers data (caniuse-lite) is 6 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+[32mΓ£ô[39m 1502 modules transformed.
+[32mΓ£ô built in 6.19s[39m
+[vite:load-fallback] Could not load C:\Users\shivendu\Desktop\code\Hushh\frontend\src/components/animate-ui/components/radix/sheet (imported by src/components/animate-ui/components/radix/sidebar.jsx): ENOENT: no such file or directory, open 'C:\Users\shivendu\Desktop\code\Hushh\frontend\src\components\animate-ui\components\radix\sheet'
+error during build:
+Error: Could not load C:\Users\shivendu\Desktop\code\Hushh\frontend\src/components/animate-ui/components/radix/sheet (imported by src/components/animate-ui/components/radix/sidebar.jsx): ENOENT: no such file or directory, open 'C:\Users\shivendu\Desktop\code\Hushh\frontend\src\components\animate-ui\components\radix\sheet'
+    at async open (node:internal/fs/promises:639:25)
+    at async Object.readFile (node:internal/fs/promises:1243:14)
+    at async PluginDriver.hookFirstAndGetPlugin (file:///C:/Users/shivendu/Desktop/code/Hushh/frontend/node_modules/rollup/dist/es/shared/node-entry.js:25444:28)
+    at async file:///C:/Users/shivendu/Desktop/code/Hushh/frontend/node_modules/rollup/dist/es/shared/node-entry.js:24611:75
+    at async Queue.work (file:///C:/Users/shivendu/Desktop/code/Hushh/frontend/node_modules/rollup/dist/es/shared/node-entry.js:25654:32)
