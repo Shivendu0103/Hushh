@@ -12,7 +12,6 @@ const initFirebaseAdmin = () => {
   if (firebaseAdmin) return firebaseAdmin
 
   try {
-    // Option 1: Use environment variables (recommended)
     if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY && process.env.FIREBASE_CLIENT_EMAIL) {
       firebaseAdmin = admin.initializeApp({
         credential: admin.credential.cert({
@@ -22,21 +21,10 @@ const initFirebaseAdmin = () => {
         })
       })
       console.log('✅ Firebase Admin initialized with environment variables')
-    }
-    // Option 2: Use service account JSON file
-    else {
-      try {
-        const serviceAccount = require('./firebase-service-account.json')
-        firebaseAdmin = admin.initializeApp({
-          credential: admin.credential.cert(serviceAccount)
-        })
-        console.log('✅ Firebase Admin initialized with service account file')
-      } catch (fileError) {
-        console.warn('⚠️  Firebase service account file not found. Firebase auth verification will be skipped.')
-        console.warn('   To enable Firebase Auth, add FIREBASE_PROJECT_ID, FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL to .env')
-        console.warn('   OR place firebase-service-account.json in backend/src/config/')
-        return null
-      }
+    } else {
+      console.warn('⚠️  Firebase environment variables not found on Render/Vercel. Firebase auth verification will be skipped.')
+      console.warn('   To enable Firebase Auth, add FIREBASE_PROJECT_ID, FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL to your environment variables.')
+      return null
     }
   } catch (error) {
     console.error('❌ Firebase Admin init error:', error.message)
