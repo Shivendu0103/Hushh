@@ -295,7 +295,7 @@ Hushh/
 
 ## 👨‍💻 Author
 
-**Shivendu Sinha**
+**Shivendu Sinha ×͜×**
 
 - GitHub: [@Shivendu0103](https://github.com/Shivendu0103)
 - LinkedIn: [Shivendu Sinha](https://www.linkedin.com/in/shivendu0103/)
