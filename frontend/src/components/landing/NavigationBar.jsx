@@ -30,7 +30,7 @@ export function NavigationBar({ onOpenAuth }) {
         {/* Logo */}
         <a href="#" className="flex items-center gap-2 group">
           <span className="text-2xl font-bold text-primary">Hushh</span>
-          <span className="text-sm text-accent">⚡</span>
+          <span className="text-sm text-orange-500">⚡</span>
         </a>
 
         {/* Desktop Nav */}
