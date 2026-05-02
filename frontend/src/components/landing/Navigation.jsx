@@ -4,8 +4,7 @@ import { Menu, X } from "lucide-react";
 const navLinks = [
   { name: "Features", href: "#features" },
   { name: "How It Works", href: "#how-it-works" },
-  { name: "Community", href: "#community" },
-  { name: "Pricing", href: "#pricing" }
+  { name: "Community", href: "#community" }
 ];
 export function Navigation({ onOpenAuth }) {
   const [isScrolled, setIsScrolled] = useState(false);
