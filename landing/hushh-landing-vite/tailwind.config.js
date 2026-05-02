@@ -1,15 +1,12 @@
+/** @type {import('tailwindcss').Config} */
 export default {
-  content: ["./index.html", "./src/**/*.{js,jsx}"],
-  darkMode: 'class',
+  content: [
+    "./index.html",
+    "./src/**/*.{js,jsx,ts,tsx}",
+  ],
   theme: {
     extend: {
       colors: {
-        neon: {
-          pink: '#ff006e',
-          purple: '#8338ec', 
-          cyan: '#06ffa5',
-          blue: '#3a86ff'
-        },
         background: '#0f0f1e',
         foreground: '#f0f0f5',
         card: '#1a1a2e',
@@ -27,31 +24,19 @@ export default {
         'destructive-foreground': '#f0f0f5',
       },
       fontFamily: {
-        'druk': ['Druk', 'sans-serif'],
-        'monument': ['Monument Extended', 'sans-serif'],
         sans: ['system-ui', 'sans-serif'],
         display: ['Syne', 'system-ui', 'sans-serif'],
         mono: ['Fira Code', 'monospace'],
       },
       animation: {
-        'gradient': 'gradient 3s ease infinite',
-        'float': 'float 3s ease-in-out infinite',
-        'glow': 'glow 2s ease-in-out infinite alternate',
+        float: 'float 3s ease-in-out infinite',
         'fade-in': 'fadeIn 0.5s ease-in',
         'slide-up': 'slideUp 0.5s ease-out',
       },
       keyframes: {
-        gradient: {
-          '0%, 100%': { 'background-position': '0% 50%' },
-          '50%': { 'background-position': '100% 50%' }
-        },
         float: {
           '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-10px)' }
-        },
-        glow: {
-          '0%': { 'box-shadow': '0 0 20px rgba(255, 0, 110, 0.5)' },
-          '100%': { 'box-shadow': '0 0 30px rgba(131, 56, 236, 0.8)' }
+          '50%': { transform: 'translateY(-20px)' },
         },
         fadeIn: {
           '0%': { opacity: '0' },
@@ -61,8 +46,8 @@ export default {
           '0%': { transform: 'translateY(20px)', opacity: '0' },
           '100%': { transform: 'translateY(0)', opacity: '1' },
         },
-      }
-    }
+      },
+    },
   },
-  plugins: []
+  plugins: [],
 }
