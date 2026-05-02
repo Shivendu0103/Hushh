@@ -1,123 +1,202 @@
-import { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
-
+import { useEffect, useState, useRef } from "react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+const testimonials = [
+  {
+    quote: "Hushh completely changed how I connect with people. The vibe is unmatched. Chaos Mode turned my feed into pure energy.",
+    author: "Alex Rivera",
+    role: "Content Creator",
+    company: "Hushh Community",
+    metric: { value: "100K", label: "Vibers reached" }
+  },
+  {
+    quote: "The theme songs feature is genius. I finally feel like my profile reflects who I am. This is social media done right.",
+    author: "Jordan Patel",
+    role: "Musician",
+    company: "Hushh Community",
+    metric: { value: "\u{1F3B5}", label: "Creative freedom" }
+  },
+  {
+    quote: "I love the gamification system. Leveling up feels rewarding and the real-time connection keeps me coming back.",
+    author: "Sam Chen",
+    role: "Gamer",
+    company: "Hushh Community",
+    metric: { value: "24/7", label: "Always vibing" }
+  },
+  {
+    quote: "Finally a platform where authentic connection is everything. No algorithms pushing engagement, just real vibes and real people.",
+    author: "Morgan Taylor",
+    role: "Digital Nomad",
+    company: "Hushh Community",
+    metric: { value: "\u221E", label: "Possibilities" }
+  }
+];
 export function TestimonialsSection() {
+  const [activeIndex, setActiveIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
+  const [direction, setDirection] = useState("right");
   const sectionRef = useRef(null);
-
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
+        if (entry.isIntersecting)
           setIsVisible(true);
-        }
       },
-      { threshold: 0.2 }
+      { threshold: 0.1 }
     );
-
-    if (sectionRef.current) {
+    if (sectionRef.current)
       observer.observe(sectionRef.current);
-    }
-
     return () => observer.disconnect();
   }, []);
-
-  const testimonials = [
-    {
-      quote:
-        "Hushh completely changed how I connect with people. The vibe is unmatched. Chaos Mode turned my feed into pure energy.",
-      author: "Alex Rivera",
-      role: "Content Creator",
-      metric: "100K Vibers reached",
-    },
-    {
-      quote:
-        "The theme songs feature is genius. I finally feel like my profile reflects who I am. This is social media done right.",
-      author: "Jordan Patel",
-      role: "Musician",
-      metric: "Creative freedom",
-    },
-    {
-      quote:
-        "I love the gamification system. Leveling up feels rewarding and the real-time connection keeps me coming back.",
-      author: "Sam Chen",
-      role: "Gamer",
-      metric: "24/7 Always vibing",
-    },
-    {
-      quote:
-        "Finally a platform where authentic connection is everything. No algorithms pushing engagement, just real vibes and real people.",
-      author: "Morgan Taylor",
-      role: "Digital Nomad",
-      metric: "Infinite possibilities",
-    },
-  ];
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.15 },
-    },
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDirection("right");
+      setActiveIndex((prev) => (prev + 1) % testimonials.length);
+    }, 8e3);
+    return () => clearInterval(interval);
+  }, []);
+  const goTo = (index) => {
+    setDirection(index > activeIndex ? "right" : "left");
+    setActiveIndex(index);
   };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
+  const goPrev = () => {
+    setDirection("left");
+    setActiveIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
   };
-
-  return (
-    <section
-      ref={sectionRef}
-      className="relative py-20 md:py-32 px-6 bg-background"
-    >
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate={isVisible ? "visible" : "hidden"}
-          className="text-center mb-16"
-        >
-          <motion.span variants={itemVariants} className="inline-flex items-center gap-3 text-sm font-mono text-accent mb-6">
-            <span className="w-12 h-px bg-accent/50" />
-            Loved by creators worldwide
-          </motion.span>
-          <motion.h2
-            variants={itemVariants}
-            className="text-5xl md:text-6xl font-bold mb-6"
-          >
-            What people say
-          </motion.h2>
-        </motion.div>
-
-        {/* Testimonials Grid */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate={isVisible ? "visible" : "hidden"}
-          className="grid md:grid-cols-2 gap-6"
-        >
-          {testimonials.map((testimonial, index) => (
-            <motion.div
-              key={index}
-              variants={itemVariants}
-              className="p-8 rounded-xl bg-card border border-border hover:border-primary/30 transition-all"
-            >
-              <p className="text-lg mb-6 text-foreground">"{testimonial.quote}"</p>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-semibold">{testimonial.author}</p>
-                  <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-primary font-semibold">{testimonial.metric}</p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+  const goNext = () => {
+    setDirection("right");
+    setActiveIndex((prev) => (prev + 1) % testimonials.length);
+  };
+  const activeTestimonial = testimonials[activeIndex];
+  return <section ref={sectionRef} className="relative py-32 lg:py-40 bg-foreground text-background overflow-hidden">
+    {
+      /* ASCII background pattern */
+    }
+    <div className="absolute inset-0 font-mono text-[10px] text-background/[0.02] leading-tight overflow-hidden whitespace-pre select-none">{Array.from(
+      { length: 60 },
+      (_, i) => Array.from(
+        { length: 100 },
+        () => Math.random() > 0.7 ? '"' : " "
+      ).join("")
+    ).join("\n")}</div>
+    <div className="relative z-10 max-w-[1400px] mx-auto px-6 lg:px-12">
+      {
+        /* Header */
+      }
+      <div className="flex items-center justify-between mb-20">
+        <div>
+          <span className="inline-flex items-center gap-3 text-sm font-mono text-background/40 mb-4">
+            <span className="w-12 h-px bg-background/20" />
+            {"Testimonials"}
+          </span>
+          <h2 className={`text-4xl lg:text-5xl font-display transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+            {"Trusted by teams"}
+            <span className="text-background/40"> worldwide.</span>
+          </h2>
+        </div>
+        {
+          /* Navigation arrows */
+        }
+        <div className="hidden lg:flex items-center gap-2">
+          <button
+            onClick={goPrev}
+            className="p-4 border border-background/20 hover:bg-background/10 transition-colors"
+          ><ArrowLeft className="w-5 h-5" /></button>
+          <button
+            onClick={goNext}
+            className="p-4 border border-background/20 hover:bg-background/10 transition-colors"
+          ><ArrowRight className="w-5 h-5" /></button>
+        </div>
       </div>
-    </section>
-  );
+      {
+        /* Main content - Split layout */
+      }
+      <div className="grid lg:grid-cols-12 gap-12 lg:gap-20">
+        {
+          /* Quote side */
+        }
+        <div className="lg:col-span-7 relative">
+          {
+            /* Large quote mark */
+          }
+          <span className="absolute -left-4 -top-8 text-[200px] font-display text-background/5 leading-none select-none">{"\u201C"}</span>
+          <div className="relative">
+            <blockquote
+              key={activeIndex}
+              className="text-3xl lg:text-4xl xl:text-5xl font-display leading-[1.2] tracking-tight animate-fadeSlideIn"
+            >{activeTestimonial.quote}</blockquote>
+            {
+              /* Author */
+            }
+            <div className="mt-12 flex items-center gap-6">
+              <div className="w-14 h-14 rounded-full bg-background/10 flex items-center justify-center"><span className="font-display text-xl">{activeTestimonial.author.charAt(0)}</span></div>
+              <div>
+                <p className="text-lg font-medium">{activeTestimonial.author}</p>
+                <p className="text-background/60">
+                  {activeTestimonial.role}
+                  {", "}
+                  {activeTestimonial.company}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        {
+          /* Metric cards side */
+        }
+        <div className="lg:col-span-5 flex flex-col justify-center gap-6">
+          {
+            /* Active metric - Large */
+          }
+          <div
+            key={`metric-${activeIndex}`}
+            className="p-10 border border-background/20 bg-background/5 animate-fadeSlideIn"
+          >
+            <span className="text-7xl lg:text-8xl font-display block mb-4">{activeTestimonial.metric.value}</span>
+            <span className="text-lg text-background/60">{activeTestimonial.metric.label}</span>
+          </div>
+          {
+            /* Progress indicators */
+          }
+          <div className="flex gap-2">{testimonials.map((_, idx) => <button
+            key={idx}
+            onClick={() => goTo(idx)}
+            className="flex-1 h-1 bg-background/20 overflow-hidden"
+          ><div
+            className={`h-full bg-background transition-all duration-300 ${idx === activeIndex ? "w-full" : idx < activeIndex ? "w-full opacity-50" : "w-0"}`}
+            style={idx === activeIndex ? { animation: "progress 8s linear forwards" } : {}}
+          /></button>)}</div>
+          {
+            /* Company list */
+          }
+          <div className="mt-4 pt-6 border-t border-background/10">
+            <span className="text-xs font-mono text-background/30 uppercase tracking-widest block mb-4">Featured companies</span>
+            <div className="flex flex-wrap gap-3">{testimonials.map((t, idx) => <button
+              key={t.company}
+              onClick={() => goTo(idx)}
+              className={`px-4 py-2 text-sm border transition-all ${idx === activeIndex ? "border-background/40 text-background" : "border-background/10 text-background/40 hover:border-background/30"}`}
+            >{t.company}</button>)}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <style jsx>{`
+        @keyframes fadeSlideIn {
+          from {
+            opacity: 0;
+            transform: translateX(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        .animate-fadeSlideIn {
+          animation: fadeSlideIn 0.5s ease-out forwards;
+        }
+        @keyframes progress {
+          from { width: 0%; }
+          to { width: 100%; }
+        }
+      `}</style>
+  </section>;
 }
