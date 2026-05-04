@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-const words = ["vibe", "connect", "create", "thrive"];
+const words = ["SHIVENDU"];
 function BlurWord({ word, trigger }) {
   const letters = word.split("");
   const STAGGER = 45;
@@ -77,15 +77,11 @@ function BlurWord({ word, trigger }) {
 }
 export function HeroSection() {
   const [isVisible, setIsVisible] = useState(false);
-  const [wordIndex, setWordIndex] = useState(0);
   useEffect(() => {
     setIsVisible(true);
   }, []);
   useEffect(() => {
-    const interval = setInterval(() => {
-      setWordIndex((prev) => (prev + 1) % words.length);
-    }, 2500);
-    return () => clearInterval(interval);
+    // No cycling needed for a single name
   }, []);
   return <section className="relative min-h-screen flex flex-col justify-center items-start overflow-hidden bg-black">
     {
@@ -137,7 +133,7 @@ export function HeroSection() {
         className={`mb-8 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
       ><span className="inline-flex items-center gap-3 text-sm font-mono text-white/60">
         <span className="w-8 h-px bg-white/30" />
-        {"Welcome to the social revolution"}
+        {"HELLO,"}
       </span></div>
       {
         /* Main headline */
@@ -145,23 +141,34 @@ export function HeroSection() {
       <div className="mb-12"><h1
         className={`text-left text-[clamp(2rem,6vw,7rem)] font-display leading-[0.92] tracking-tight text-white transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
       >
-        <span className="block whitespace-nowrap">Where you</span>
-        <span className="block whitespace-nowrap"><span className="relative inline-block"><BlurWord word={words[wordIndex]} trigger={wordIndex} /></span></span>
-      </h1></div>
-    </div></div>
+        <span className="block whitespace-nowrap">I AM</span>
+        <span className="block whitespace-nowrap"><span className="relative inline-block"><BlurWord word={words[0]} trigger={isVisible} /></span></span>
+      </h1>
+      <p
+        className={`mt-6 text-lg lg:text-xl text-white/60 max-w-xl transition-all duration-700 delay-300 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+      >
+        Building scalable web applications and AI-powered systems for real-world impact
+      </p>
+      </div></div></div>
     {
       /* Stats — 3 metrics static, no auto-scroll */
     }
     <div
       className={`absolute bottom-12 left-0 right-0 px-6 lg:px-12 transition-all duration-700 delay-500 ${isVisible ? "opacity-100" : "opacity-0"}`}
-    ><div className="max-w-[1400px] mx-auto flex items-start gap-10 lg:gap-20">{[
-      { value: "100K+", label: "vibers connected" },
-      { value: "24/7", label: "real-time vibes" },
-      { value: "\u221E", label: "creative freedom" }
-    ].map((stat) => <div key={stat.label} className="flex flex-col gap-2">
-      <span className="text-3xl lg:text-4xl font-display text-white">{stat.value}</span>
-      <span className="text-xs text-white/50 leading-tight">{stat.label}</span>
-    </div>)}</div></div>
+    ><div className="max-w-[1400px] mx-auto flex flex-col md:flex-row justify-between items-end gap-6">
+      <div className="flex flex-wrap items-center gap-4 text-xs font-mono tracking-[0.2em] text-white/40 uppercase">
+        <span>FULL-STACK</span>
+        <span className="text-white/20">\</span>
+        <span>REAL-TIME SYSTEMS</span>
+        <span className="text-white/20">\</span>
+        <span>AI</span>
+        <span className="text-white/20">\</span>
+        <span>CLOUD</span>
+      </div>
+      <div className="text-xs font-mono text-white/40 animate-bounce flex items-center gap-2">
+        Scroll to explore <span className="text-lg">↓</span>
+      </div>
+    </div></div>
     {
       /* Scroll indicator */
     }
