@@ -117,26 +117,39 @@ const PostCard = ({ post, onLike, onComment, onShare, onDelete }) => {
 
         {/* Media Content */}
         {post.media && post.media.length > 0 && (
-          <div className="mb-4 rounded-xl overflow-hidden">
+          <div className={`mb-4 rounded-xl overflow-hidden bg-gradient-to-br from-purple-500/10 to-cyan-500/10 border border-purple-500/20 ${post.media.length > 1 ? 'grid grid-cols-2 gap-1' : ''}`}>
             {post.media.map((media, index) => (
               <motion.div
                 key={index}
-                className="relative"
+                className="relative group overflow-hidden bg-black/30"
                 whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300 }}
+                layoutId={`post-media-${post.id}-${index}`}
               >
                 {media.type === 'image' ? (
                   <img
                     src={media.url}
                     alt="Post media"
-                    className="w-full h-auto max-h-96 object-cover"
+                    className="w-full h-auto max-h-96 object-cover group-hover:brightness-110 transition-all duration-300"
+                    onError={() => console.log('[v0] Post image load error:', media.url)}
                   />
                 ) : (
-                  <video
-                    src={media.url}
-                    controls
-                    className="w-full h-auto max-h-96"
-                  />
+                  <div className="relative w-full h-96 bg-black/50 flex items-center justify-center">
+                    <video
+                      src={media.url}
+                      controls
+                      className="w-full h-full"
+                      onError={() => console.log('[v0] Post video load error:', media.url)}
+                    />
+                    <div className="absolute top-2 right-2 bg-black/70 rounded-full px-3 py-1 text-xs text-white flex items-center gap-1">
+                      <span>🎥</span> Video
+                    </div>
+                  </div>
+                )}
+                {post.media.length > 1 && index === 0 && (
+                  <div className="absolute top-2 right-2 bg-black/70 rounded-full px-3 py-1 text-xs text-white">
+                    +{post.media.length - 1} more
+                  </div>
                 )}
               </motion.div>
             ))}

@@ -18,8 +18,8 @@ export default function StoryBar() {
     })
 
     // Real file upload mechanism
-    const addStoryMutation = useMutation(async (mediaUrl) => {
-        const res = await api.post('/stories', { mediaUrl })
+    const addStoryMutation = useMutation(async ({ mediaUrl, mediaType = 'image' }) => {
+        const res = await api.post('/stories', { mediaUrl, mediaType })
         return res
     }, {
         onSuccess: () => {
@@ -40,9 +40,14 @@ export default function StoryBar() {
                 headers: { 'Content-Type': 'multipart/form-data' }
             })
 
-            if (uploadRes.success) {
-                await addStoryMutation.mutateAsync(uploadRes.mediaUrl)
+            if (uploadRes && (uploadRes.mediaUrl || uploadRes.url)) {
+                const mediaUrl = uploadRes.mediaUrl || uploadRes.url
+                const mediaType = uploadRes.mediaType || (file.type.startsWith('video/') ? 'video' : 'image')
+                
+                await addStoryMutation.mutateAsync({ mediaUrl, mediaType })
                 toast.success('Story added!', { id: toastId })
+            } else {
+                throw new Error('Upload failed - no media URL returned')
             }
         } catch (error) {
             toast.error(error.message || 'Failed to upload story', { id: toastId })
