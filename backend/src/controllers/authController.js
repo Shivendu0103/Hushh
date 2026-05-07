@@ -95,10 +95,11 @@ const login = async (req, res) => {
       })
     }
 
-    // Update online status
-    user.isOnline = true
-    user.lastSeen = new Date()
-    await user.save()
+    // Update online status with updateOne (faster than save())
+    await User.updateOne(
+      { _id: user._id },
+      { isOnline: true, lastSeen: new Date() }
+    )
 
     // Generate token
     const token = generateToken(user._id)
@@ -130,8 +131,18 @@ const login = async (req, res) => {
 // @route   GET /api/auth/me
 const getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id)
+    // Only select necessary fields to reduce payload
+    const user = await User.findById(req.user.id).select(
+      'username email profile gamification preferences isOnline'
+    )
     
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      })
+    }
+
     res.json({
       success: true,
       user: {
@@ -189,15 +200,12 @@ const firebaseAuth = async (req, res) => {
     })
 
     if (user) {
-      // Update Firebase UID if not set (linking existing account)
+      // Update Firebase UID and online status with single query
+      const updateData = { isOnline: true, lastSeen: new Date() }
       if (!user.firebaseUid) {
-        user.firebaseUid = firebaseUid
-        await user.save()
+        updateData.firebaseUid = firebaseUid
       }
-      // Update online status
-      user.isOnline = true
-      user.lastSeen = new Date()
-      await user.save()
+      await User.updateOne({ _id: user._id }, updateData)
     } else {
       // Create new user from Firebase data
       // Generate a unique username if not provided

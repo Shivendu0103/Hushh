@@ -1,6 +1,10 @@
 const jwt = require('jsonwebtoken')
 const User = require('../models/User')
 
+// Cache for decoded tokens to avoid repeated JWT parsing
+const tokenCache = new Map()
+const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
 const protect = async (req, res, next) => {
   try {
     let token
@@ -18,18 +22,27 @@ const protect = async (req, res, next) => {
     }
 
     try {
-      // Verify token
-      const decoded = jwt.verify(token, process.env.JWT_SECRET)
-      
-      // Get user from token
-      req.user = await User.findById(decoded.id)
-      
-      if (!req.user) {
-        return res.status(401).json({
-          success: false,
-          message: 'Token is valid but user not found'
-        })
+      let decoded
+
+      // Check cache first
+      if (tokenCache.has(token)) {
+        const cached = tokenCache.get(token)
+        if (Date.now() - cached.timestamp < CACHE_TTL) {
+          decoded = cached.data
+        } else {
+          tokenCache.delete(token)
+        }
       }
+
+      // Verify token if not cached
+      if (!decoded) {
+        decoded = jwt.verify(token, process.env.JWT_SECRET)
+        tokenCache.set(token, { data: decoded, timestamp: Date.now() })
+      }
+
+      // Store only the ID in the request - avoid full user fetch when possible
+      req.user = { id: decoded.id }
+      req.userId = decoded.id
 
       next()
     } catch (error) {
