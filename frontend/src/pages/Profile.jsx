@@ -113,75 +113,118 @@ const Profile = () => {
   const isOwn = !id || id === user?.id
 
   return (
-    <div className="min-h-screen relative">
-      <LiquidBackground />
-      
-      <div className="relative z-10 container mx-auto px-4 py-8 max-w-4xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
-        >
-          {/* Profile Header */}
-          <ProfileHeader 
-            user={profileData}
-            isOwn={isOwn}
-            onEditProfile={() => setIsEditing(true)}
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-8"
+    >
+      {/* Cover & Avatar */}
+      <div className="relative h-64 bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 rounded-2xl overflow-hidden">
+        <div className="absolute inset-0 opacity-50 bg-black/30" />
+        {profileData.profile?.coverImage && (
+          <img
+            src={profileData.profile.coverImage}
+            alt="Cover"
+            className="w-full h-full object-cover"
           />
+        )}
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { label: 'Total Posts', value: profileData?.stats?.posts || 0, icon: '📝', color: 'from-blue-500 to-cyan-500' },
-              { label: 'Vibers', value: profileData?.stats?.followers || 0, icon: '👥', color: 'from-purple-500 to-pink-500' },
-              { label: 'Vibing', value: profileData?.stats?.following || 0, icon: '🤝', color: 'from-green-500 to-emerald-500' },
-              { label: 'Level', value: profileData?.gamification?.level || 1, icon: '🏆', color: 'from-yellow-500 to-orange-500' }
-            ].map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <GlassCard className={`p-4 text-center bg-gradient-to-r ${stat.color} bg-opacity-20`}>
-                  <div className="text-2xl mb-2">{stat.icon}</div>
-                  <div className="text-2xl font-bold neon-text">{stat.value}</div>
-                  <div className="text-sm text-gray-400">{stat.label}</div>
-                </GlassCard>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Achievements */}
-          <AchievementShowcase achievements={profileData?.gamification?.achievements || []} />
-
-          {/* Recent Posts */}
-          <div>
-            <h3 className="text-2xl font-bold neon-text mb-6 flex items-center">
-              <Edit className="w-6 h-6 mr-2" />
-              {isOwn ? 'Your Posts' : `${profileData?.profile?.displayName || profileData.username}'s Posts`}
-            </h3>
-            
-            {postsLoading ? (
-              <div className="text-gray-400">Loading posts matrix...</div>
-            ) : userPosts.length > 0 ? (
-              <div className="space-y-6">
-                {userPosts.map((post) => (
-                  <PostCard
-                    key={post.id}
-                    post={post}
-                    onLike={(id) => likeMutation.mutate(id)}
-                    onComment={(id, content) => commentMutation.mutate({ postId: id, content })}
-                    onShare={(id) => shareMutation.mutate(id)}
-                    onDelete={(id) => deleteMutation.mutate(id)}
-                  />
-                ))}
-              </div>
-            ) : (
-                <div className="text-gray-500">No signals found in this sector yet.</div>
-            )}
+        {/* Avatar Overlap */}
+        <motion.div
+          initial={{ scale: 0, y: 20 }}
+          animate={{ scale: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="absolute bottom-0 left-8 translate-y-1/2"
+        >
+          <div className="w-40 h-40 rounded-2xl bg-gradient-to-r from-purple-500 to-cyan-500 p-1 shadow-2xl">
+            <img
+              src={profileData.profile?.avatar || `https://ui-avatars.com/api/?name=${profileData.username}&size=160&background=random`}
+              alt={profileData.username}
+              className="w-full h-full rounded-2xl object-cover"
+            />
           </div>
         </motion.div>
+      </div>
+
+      {/* Profile Info */}
+      <div className="mt-24 space-y-6">
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-4xl font-black text-white">{profileData.profile?.displayName || profileData.username}</h1>
+            <p className="text-lg text-purple-300">@{profileData.username}</p>
+            {profileData.profile?.bio && (
+              <p className="text-gray-300 mt-2 max-w-2xl">{profileData.profile.bio}</p>
+            )}
+          </div>
+
+          {isOwn && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsEditing(true)}
+              className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-purple-500/50 transition-all flex items-center gap-2"
+            >
+              <Edit className="w-5 h-5" />
+              Edit Profile
+            </motion.button>
+          )}
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { label: 'Posts', value: profileData?.stats?.posts || 0, gradient: 'from-blue-500 to-cyan-500' },
+            { label: 'Followers', value: profileData?.stats?.followers || 0, gradient: 'from-purple-500 to-pink-500' },
+            { label: 'Following', value: profileData?.stats?.following || 0, gradient: 'from-green-500 to-emerald-500' },
+            { label: 'Level', value: profileData?.gamification?.level || 1, gradient: 'from-yellow-500 to-orange-500' }
+          ].map((stat, index) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              whileHover={{ scale: 1.05 }}
+              className="group"
+            >
+              <div className={`h-full bg-white/5 border border-white/10 group-hover:border-white/20 rounded-xl p-4 text-center hover:shadow-lg transition-all`}>
+                <p className={`text-3xl font-bold bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent`}>
+                  {stat.value}
+                </p>
+                <p className="text-sm text-gray-400 mt-2">{stat.label}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Achievements */}
+        <AchievementShowcase achievements={profileData?.gamification?.achievements || []} />
+
+        {/* Recent Posts */}
+        <div>
+          <h3 className="text-2xl font-bold neon-text mb-6 flex items-center">
+            <Edit className="w-6 h-6 mr-2" />
+            {isOwn ? 'Your Posts' : `${profileData?.profile?.displayName || profileData.username}'s Posts`}
+          </h3>
+          
+          {postsLoading ? (
+            <div className="text-gray-400">Loading posts matrix...</div>
+          ) : userPosts.length > 0 ? (
+            <div className="space-y-6">
+              {userPosts.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  onLike={(id) => likeMutation.mutate(id)}
+                  onComment={(id, content) => commentMutation.mutate({ postId: id, content })}
+                  onShare={(id) => shareMutation.mutate(id)}
+                  onDelete={(id) => deleteMutation.mutate(id)}
+                />
+              ))}
+            </div>
+          ) : (
+              <div className="text-gray-500">No signals found in this sector yet.</div>
+          )}
+        </div>
       </div>
 
       <EditProfileModal 
@@ -189,7 +232,7 @@ const Profile = () => {
         onClose={() => setIsEditing(false)} 
         user={profileData} 
       />
-    </div>
+    </motion.div>
   )
 }
 
