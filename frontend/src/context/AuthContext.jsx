@@ -23,8 +23,16 @@ export const AuthProvider = ({ children }) => {
   // Sync Firebase user → our MongoDB backend
   const syncWithBackend = async (firebaseUser) => {
     try {
-      const idToken = await firebaseUser.getIdToken()
-      localStorage.setItem('hushh_firebase_token', idToken)
+      // Only get token if we don't have a recent one cached
+      let idToken = localStorage.getItem('hushh_firebase_token')
+      const tokenTime = localStorage.getItem('hushh_firebase_token_time')
+      const isTokenFresh = tokenTime && Date.now() - parseInt(tokenTime) < 55 * 60 * 1000 // 55 min
+      
+      if (!idToken || !isTokenFresh) {
+        idToken = await firebaseUser.getIdToken()
+        localStorage.setItem('hushh_firebase_token', idToken)
+        localStorage.setItem('hushh_firebase_token_time', Date.now().toString())
+      }
 
       // Call backend to register/login with Firebase token
       const response = await fetch(`${API_URL}/auth/firebase`, {
@@ -65,49 +73,91 @@ export const AuthProvider = ({ children }) => {
   // Listen to Firebase auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        // Refresh token and sync with backend
-        const result = await syncWithBackend(firebaseUser)
-        if (!result.success) {
-          // Fall back to checking stored token
-          const token = localStorage.getItem('hushh_token')
-          if (token && token !== 'demo-token-123') {
-            try {
-              const resp = await fetch(`${API_URL}/auth/me`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-              })
-              if (resp.ok) {
-                const data = await resp.json()
-                setUser(data.user)
+      try {
+        if (firebaseUser) {
+          // Refresh token and sync with backend
+          const result = await syncWithBackend(firebaseUser)
+          if (!result.success) {
+            // Fall back to checking stored token
+            const token = localStorage.getItem('hushh_token')
+            const cachedUser = localStorage.getItem('hushh_user')
+            
+            // Try using cached user data first (faster)
+            if (cachedUser) {
+              try {
+                const userData = JSON.parse(cachedUser)
+                setUser(userData)
                 setIsAuthenticated(true)
+              } catch (e) {
+                // If cache is corrupted, verify with server
+                if (token && token !== 'demo-token-123') {
+                  const resp = await fetch(`${API_URL}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                  })
+                  if (resp.ok) {
+                    const data = await resp.json()
+                    setUser(data.user)
+                    setIsAuthenticated(true)
+                  }
+                }
               }
-            } catch (e) {
-              console.error('Auth fallback error:', e)
             }
           }
-        }
-      } else {
-        // No Firebase user — check for existing JWT session
-        const token = localStorage.getItem('hushh_token')
-        if (token && token !== 'demo-token-123') {
-          try {
-            const resp = await fetch(`${API_URL}/auth/me`, {
-              headers: { 'Authorization': `Bearer ${token}` }
-            })
-            if (resp.ok) {
-              const data = await resp.json()
-              setUser(data.user)
-              setIsAuthenticated(true)
+        } else {
+          // No Firebase user — check for existing JWT session
+          const token = localStorage.getItem('hushh_token')
+          const cachedUser = localStorage.getItem('hushh_user')
+          
+          if (token && token !== 'demo-token-123') {
+            // Use cached user if available (much faster)
+            if (cachedUser) {
+              try {
+                const userData = JSON.parse(cachedUser)
+                setUser(userData)
+                setIsAuthenticated(true)
+              } catch (e) {
+                // Cache corrupted, re-verify from server
+                try {
+                  const resp = await fetch(`${API_URL}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                  })
+                  if (resp.ok) {
+                    const data = await resp.json()
+                    setUser(data.user)
+                    localStorage.setItem('hushh_user', JSON.stringify(data.user))
+                    setIsAuthenticated(true)
+                  } else {
+                    localStorage.removeItem('hushh_token')
+                    localStorage.removeItem('hushh_user')
+                  }
+                } catch (e) {
+                  console.error('Auth check error:', e)
+                }
+              }
             } else {
-              localStorage.removeItem('hushh_token')
-              localStorage.removeItem('hushh_user')
+              // No cache, fetch from server
+              try {
+                const resp = await fetch(`${API_URL}/auth/me`, {
+                  headers: { 'Authorization': `Bearer ${token}` }
+                })
+                if (resp.ok) {
+                  const data = await resp.json()
+                  setUser(data.user)
+                  localStorage.setItem('hushh_user', JSON.stringify(data.user))
+                  setIsAuthenticated(true)
+                } else {
+                  localStorage.removeItem('hushh_token')
+                  localStorage.removeItem('hushh_user')
+                }
+              } catch (e) {
+                console.error('Auth check error:', e)
+              }
             }
-          } catch (e) {
-            console.error('Auth check error:', e)
           }
         }
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     })
 
     return () => unsubscribe()

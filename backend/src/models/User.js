@@ -67,6 +67,13 @@ const userSchema = new mongoose.Schema({
   timestamps: true 
 })
 
+// Add indexes for frequently queried fields
+userSchema.index({ email: 1 })
+userSchema.index({ username: 1 })
+userSchema.index({ firebaseUid: 1 })
+userSchema.index({ isOnline: 1 })
+userSchema.index({ createdAt: -1 })
+
 // Hash password before saving
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next()
