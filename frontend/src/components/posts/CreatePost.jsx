@@ -64,9 +64,15 @@ const CreatePost = ({ onPostCreate }) => {
         }
       })
 
-      if (res.success) {
-        setMedia(prev => [...prev, ...res.media])
-        toast.success('Media uploaded!', { id: toastId })
+      if (res && res.media && Array.isArray(res.media)) {
+        const newMedia = res.media.map(m => ({
+          url: m.url || m,
+          type: m.type || (m.mimetype?.startsWith('video/') ? 'video' : 'image')
+        }))
+        setMedia(prev => [...prev, ...newMedia])
+        toast.success(`${newMedia.length} file(s) uploaded!`, { id: toastId })
+      } else {
+        throw new Error('Invalid upload response format')
       }
     } catch (error) {
       toast.error(error.message || 'Failed to upload media', { id: toastId })
@@ -80,8 +86,8 @@ const CreatePost = ({ onPostCreate }) => {
   const selectedMood = moods.find(m => m.name === mood)
 
   return (
-    <GlassCard className="mb-6" variant="neon">
-      <div className="p-6">
+    <GlassCard className="mb-8 sticky top-20 z-20 shadow-2xl shadow-purple-500/20" variant="neon">
+      <div className="p-6 space-y-4">
         {/* Header */}
         <div className="flex items-center space-x-4 mb-4">
           <motion.div 
@@ -135,28 +141,49 @@ const CreatePost = ({ onPostCreate }) => {
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                className="mt-4 grid grid-cols-2 gap-2"
+                className="mt-4 space-y-3"
               >
-                {media.map((item, index) => (
-                  <motion.div
-                    key={index}
-                    className="relative rounded-lg overflow-hidden"
-                    whileHover={{ scale: 1.02 }}
-                  >
-                    {item.type === 'video' ? (
-                      <video src={item.url} className="w-full h-32 object-cover" />
-                    ) : (
-                      <img src={item.url} alt="Upload preview" className="w-full h-32 object-cover" />
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => setMedia(media.filter((_, i) => i !== index))}
-                      className="absolute top-2 right-2 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                <div className="text-sm font-semibold text-gray-300 flex items-center">
+                  <Image className="w-4 h-4 mr-2" />
+                  {media.length} file{media.length !== 1 ? 's' : ''} attached
+                </div>
+                <div className={`grid gap-3 ${media.length === 1 ? 'grid-cols-1' : media.length <= 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+                  {media.map((item, index) => (
+                    <motion.div
+                      key={index}
+                      className="relative rounded-xl overflow-hidden group bg-gradient-to-br from-purple-500/10 to-cyan-500/10 border border-purple-500/20"
+                      whileHover={{ scale: 1.02 }}
+                      layoutId={`media-${index}`}
                     >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </motion.div>
-                ))}
+                      {item.type === 'video' ? (
+                        <video 
+                          src={item.url} 
+                          className="w-full h-48 object-cover" 
+                          onError={() => console.log('[v0] Video load error:', item.url)}
+                        />
+                      ) : (
+                        <img 
+                          src={item.url} 
+                          alt={`Upload preview ${index + 1}`} 
+                          className="w-full h-48 object-cover" 
+                          onError={() => console.log('[v0] Image load error:', item.url)}
+                        />
+                      )}
+                      <motion.button
+                        type="button"
+                        onClick={() => setMedia(media.filter((_, i) => i !== index))}
+                        className="absolute top-2 right-2 w-8 h-8 bg-black/60 rounded-full flex items-center justify-center text-white hover:bg-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <X className="w-4 h-4" />
+                      </motion.button>
+                      <div className="absolute bottom-2 left-2 bg-black/60 rounded-full px-2 py-1 text-xs text-white">
+                        {item.type === 'video' ? '🎥 Video' : '🖼️ Image'}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
