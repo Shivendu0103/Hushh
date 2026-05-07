@@ -19,6 +19,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.0.0",
     "emoji-picker-react": "^4.5.0",
+    "express": "^5.2.1",
     "firebase": "^12.10.0",
     "framer-motion": "^10.18.0",
     "lucide-react": "^0.274.0",

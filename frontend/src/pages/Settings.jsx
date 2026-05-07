@@ -55,163 +55,162 @@ const Settings = () => {
     </div>
   )
 
-  return (
-    <div className="min-h-screen relative">
-      <LiquidBackground chaosMode={settings.appearance.chaosMode} />
+  const SettingsSection = ({ icon: Icon, title, children }) => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="group relative"
+    >
+      {/* Gradient Border */}
+      <div className="absolute inset-0 bg-gradient-to-r from-purple-500/50 via-pink-500/50 to-cyan-500/50 rounded-2xl p-px opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       
-      <div className="relative z-10 container mx-auto px-4 py-8 max-w-4xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
-        >
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-black neon-text mb-2">Settings ⚙️</h1>
-            <p className="text-gray-400">Customize your Hushh experience</p>
+      {/* Card */}
+      <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 group-hover:border-white/20 rounded-2xl p-8 transition-all">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg">
+            <Icon className="w-6 h-6 text-white" />
           </div>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Notifications */}
-            <GlassCard className="p-6">
-              <h3 className="text-xl font-bold neon-text mb-4 flex items-center">
-                <Bell className="w-5 h-5 mr-2" />
-                Notifications
-              </h3>
-              <div className="space-y-4">
-                <ToggleSwitch
-                  enabled={settings.notifications.likes}
-                  onChange={(val) => updateSetting('notifications', 'likes', val)}
-                  label="Likes & Reactions"
-                />
-                <ToggleSwitch
-                  enabled={settings.notifications.comments}
-                  onChange={(val) => updateSetting('notifications', 'comments', val)}
-                  label="Comments"
-                />
-                <ToggleSwitch
-                  enabled={settings.notifications.messages}
-                  onChange={(val) => updateSetting('notifications', 'messages', val)}
-                  label="Messages"
-                />
-                <ToggleSwitch
-                  enabled={settings.notifications.achievements}
-                  onChange={(val) => updateSetting('notifications', 'achievements', val)}
-                  label="Achievements"
-                />
-              </div>
-            </GlassCard>
-
-            {/* Privacy */}
-            <GlassCard className="p-6">
-              <h3 className="text-xl font-bold neon-text mb-4 flex items-center">
-                <Shield className="w-5 h-5 mr-2" />
-                Privacy
-              </h3>
-              <div className="space-y-4">
-                <ToggleSwitch
-                  enabled={settings.privacy.profileVisible}
-                  onChange={(val) => updateSetting('privacy', 'profileVisible', val)}
-                  label="Public Profile"
-                />
-                <ToggleSwitch
-                  enabled={settings.privacy.showOnlineStatus}
-                  onChange={(val) => updateSetting('privacy', 'showOnlineStatus', val)}
-                  label="Show Online Status"
-                />
-                <ToggleSwitch
-                  enabled={settings.privacy.allowMessages}
-                  onChange={(val) => updateSetting('privacy', 'allowMessages', val)}
-                  label="Allow Messages"
-                />
-              </div>
-            </GlassCard>
-
-            {/* Appearance */}
-            <GlassCard className="p-6">
-              <h3 className="text-xl font-bold neon-text mb-4 flex items-center">
-                <Palette className="w-5 h-5 mr-2" />
-                Appearance
-              </h3>
-              <div className="space-y-4">
-                <ToggleSwitch
-                  enabled={settings.appearance.chaosMode}
-                  onChange={(val) => updateSetting('appearance', 'chaosMode', val)}
-                  label="🌈 Chaos Mode"
-                />
-                <ToggleSwitch
-                  enabled={settings.appearance.animations}
-                  onChange={(val) => updateSetting('appearance', 'animations', val)}
-                  label="✨ Animations"
-                />
-                
-                {/* Theme Selector */}
-                <div>
-                  <label className="text-white block mb-2">Theme</label>
-                  <div className="flex space-x-2">
-                    {['dark', 'neon', 'cosmic'].map((theme) => (
-                      <button
-                        key={theme}
-                        onClick={() => updateSetting('appearance', 'theme', theme)}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                          settings.appearance.theme === theme
-                            ? 'bg-purple-500 text-white'
-                            : 'bg-white/10 text-gray-300 hover:bg-white/20'
-                        }`}
-                      >
-                        {theme === 'dark' && '🌙'}
-                        {theme === 'neon' && '⚡'}
-                        {theme === 'cosmic' && '🌌'}
-                        {' ' + theme}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </GlassCard>
-
-            {/* Account */}
-            <GlassCard className="p-6">
-              <h3 className="text-xl font-bold neon-text mb-4 flex items-center">
-                <User className="w-5 h-5 mr-2" />
-                Account
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-gray-300 text-sm">Username</label>
-                  <p className="text-white font-medium">@{user?.username}</p>
-                </div>
-                <div>
-                  <label className="text-gray-300 text-sm">Email</label>
-                  <p className="text-white font-medium">{user?.email}</p>
-                </div>
-                <div>
-                  <label className="text-gray-300 text-sm">Member Since</label>
-                  <p className="text-white font-medium">
-                    {new Date(user?.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-                
-                <div className="pt-4 space-y-2">
-                  <NeonButton variant="secondary" size="sm" className="w-full">
-                    Change Password
-                  </NeonButton>
-                  <NeonButton variant="danger" size="sm" className="w-full">
-                    Delete Account
-                  </NeonButton>
-                </div>
-              </div>
-            </GlassCard>
-          </div>
-
-          {/* Save Button */}
-          <div className="text-center pt-6">
-            <NeonButton size="lg" icon={<Zap />}>
-              Save Settings ⚡
-            </NeonButton>
-          </div>
-        </motion.div>
+          <h3 className="text-xl font-bold text-white">{title}</h3>
+        </div>
+        
+        <div className="space-y-4">
+          {children}
+        </div>
       </div>
+    </motion.div>
+  )
+
+  return (
+    <div className="relative space-y-8">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center"
+      >
+        <h1 className="text-5xl font-black bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-500 bg-clip-text text-transparent mb-2">
+          Settings
+        </h1>
+        <p className="text-gray-400 text-lg">Customize your Hushh experience</p>
+      </motion.div>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Account Section */}
+        <SettingsSection icon={User} title="Account">
+          <div className="space-y-4">
+            <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+              <p className="text-sm text-gray-400 mb-2">Current Email</p>
+              <p className="text-white font-medium">{user?.email}</p>
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+              <p className="text-sm text-gray-400 mb-2">Username</p>
+              <p className="text-white font-medium">@{user?.username}</p>
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full px-4 py-2 bg-red-500/20 text-red-300 border border-red-500/50 rounded-lg hover:bg-red-500/30 transition-all font-medium"
+            >
+              Logout
+            </motion.button>
+          </div>
+        </SettingsSection>
+
+        {/* Notifications Section */}
+        <SettingsSection icon={Bell} title="Notifications">
+          <ToggleSwitch
+            enabled={settings.notifications.likes}
+            onChange={(val) => updateSetting('notifications', 'likes', val)}
+            label="Likes & Reactions"
+          />
+          <ToggleSwitch
+            enabled={settings.notifications.comments}
+            onChange={(val) => updateSetting('notifications', 'comments', val)}
+            label="Comments"
+          />
+          <ToggleSwitch
+            enabled={settings.notifications.messages}
+            onChange={(val) => updateSetting('notifications', 'messages', val)}
+            label="Direct Messages"
+          />
+          <ToggleSwitch
+            enabled={settings.notifications.achievements}
+            onChange={(val) => updateSetting('notifications', 'achievements', val)}
+            label="Achievements"
+          />
+        </SettingsSection>
+
+        {/* Appearance Section */}
+        <SettingsSection icon={Palette} title="Appearance">
+          <ToggleSwitch
+            enabled={settings.appearance.chaosMode}
+            onChange={(val) => updateSetting('appearance', 'chaosMode', val)}
+            label="Chaos Mode"
+          />
+          <ToggleSwitch
+            enabled={settings.appearance.animations}
+            onChange={(val) => updateSetting('appearance', 'animations', val)}
+            label="Animations"
+          />
+          <div>
+            <div className="flex gap-2">
+              {['dark', 'neon', 'cosmic'].map((theme) => (
+                <motion.button
+                  key={theme}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => updateSetting('appearance', 'theme', theme)}
+                  className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    settings.appearance.theme === theme
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/50'
+                      : 'bg-white/10 text-gray-300 hover:bg-white/20 border border-white/10'
+                  }`}
+                >
+                  {theme === 'dark' && '🌙'}
+                  {theme === 'neon' && '⚡'}
+                  {theme === 'cosmic' && '🌌'}
+                  {' ' + theme}
+                </motion.button>
+              ))}
+            </div>
+          </div>
+        </SettingsSection>
+
+        {/* Privacy & Security Section */}
+        <SettingsSection icon={Shield} title="Privacy & Security">
+          <ToggleSwitch
+            enabled={settings.privacy.profileVisible}
+            onChange={(val) => updateSetting('privacy', 'profileVisible', val)}
+            label="Public Profile"
+          />
+          <ToggleSwitch
+            enabled={settings.privacy.showOnlineStatus}
+            onChange={(val) => updateSetting('privacy', 'showOnlineStatus', val)}
+            label="Show Online Status"
+          />
+          <ToggleSwitch
+            enabled={settings.privacy.allowMessages}
+            onChange={(val) => updateSetting('privacy', 'allowMessages', val)}
+            label="Allow Direct Messages"
+          />
+        </SettingsSection>
+      </div>
+
+      {/* Save Button */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="text-center pt-6"
+      >
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="px-8 py-3 bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 text-white font-semibold rounded-lg shadow-lg shadow-purple-500/50 hover:shadow-xl hover:shadow-purple-500/70 transition-all flex items-center justify-center gap-2 mx-auto"
+        >
+          <Zap className="w-5 h-5" />
+          Save Settings
+        </motion.button>
+      </motion.div>
     </div>
   )
 }

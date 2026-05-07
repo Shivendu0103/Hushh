@@ -2,13 +2,15 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './context/AuthContext'
-import { SocketProvider } from './context/SocketContext'  // Add this import
+import { SocketProvider } from './context/SocketContext'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import LandingPage from './pages/LandingPage'
 import Header from './components/common/Header'
 import PostFeed from './components/posts/PostFeed'
 import Messages from './pages/Messages'
 import Profile from './pages/Profile'
+import PublicProfile from './pages/PublicProfile'
+import Explore from './pages/Explore'
 import Settings from './pages/Settings'
 import FloatingButton from './components/ui/FloatingButton'
 import LiquidBackground from './components/ui/LiquidBackground'
@@ -45,9 +47,11 @@ function App() {
                       <Header />
                       <Routes>
                         <Route path="/" element={<Home />} />
+                        <Route path="/explore" element={<Explore />} />
                         <Route path="/messages" element={<Messages />} />
+                        <Route path="/messages/:userId" element={<Messages />} />
                         <Route path="/profile" element={<Profile />} />
-                        <Route path="/profile/:id" element={<Profile />} />
+                        <Route path="/profile/:userId" element={<PublicProfile />} />
                         <Route path="/settings" element={<Settings />} />
                       </Routes>
                     </ProtectedRoute>

@@ -20,6 +20,7 @@ const Header = () => {
 
   const navItems = [
     { name: 'Feed', link: '/' },
+    { name: 'Explore', link: '/explore' },
     { name: 'Messages', link: '/messages' },
     { name: 'Profile', link: '/profile' },
     { name: 'Settings', link: '/settings' },

@@ -32,38 +32,47 @@ const PostCard = ({ post, onLike, onComment, onShare, onDelete }) => {
   }
 
   return (
-    <GlassCard className="mb-6 relative overflow-hidden" variant="default" animated>
-      {/* Emoji Explosion Effect */}
-      <AnimatePresence>
-        {showEmojiExplosion && (
-          <div className="absolute inset-0 pointer-events-none z-20">
-            {['🔥', '💫', '✨', '💜', '🌈', '⚡', '🎉'].map((emoji, i) => (
-              <motion.span
-                key={i}
-                className="absolute text-2xl"
-                initial={{
-                  x: '50%',
-                  y: '50%',
-                  scale: 0,
-                  rotate: 0
-                }}
-                animate={{
-                  x: `${50 + (Math.random() - 0.5) * 200}%`,
-                  y: `${50 + (Math.random() - 0.5) * 200}%`,
-                  scale: [0, 1.5, 0],
-                  rotate: 360
-                }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.8 }}
-              >
-                {emoji}
-              </motion.span>
-            ))}
-          </div>
-        )}
-      </AnimatePresence>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mb-8 group"
+    >
+      <div className="relative">
+        {/* Gradient Border Effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 rounded-2xl p-px opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        
+        <GlassCard className="relative overflow-hidden bg-black/40 backdrop-blur-xl border border-white/10 group-hover:border-white/20 transition-all rounded-2xl" variant="default">
+          {/* Emoji Explosion Effect */}
+          <AnimatePresence>
+            {showEmojiExplosion && (
+              <div className="absolute inset-0 pointer-events-none z-20">
+                {['🔥', '💫', '✨', '💜', '🌈', '⚡', '🎉'].map((emoji, i) => (
+                  <motion.span
+                    key={i}
+                    className="absolute text-2xl"
+                    initial={{
+                      x: '50%',
+                      y: '50%',
+                      scale: 0,
+                      rotate: 0
+                    }}
+                    animate={{
+                      x: `${50 + (Math.random() - 0.5) * 200}%`,
+                      y: `${50 + (Math.random() - 0.5) * 200}%`,
+                      scale: [0, 1.5, 0],
+                      rotate: 360
+                    }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.8 }}
+                  >
+                    {emoji}
+                  </motion.span>
+                ))}
+              </div>
+            )}
+          </AnimatePresence>
 
-      <div className="p-6">
+          <div className="p-6 space-y-4">
         {/* Post Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-3">
@@ -157,60 +166,66 @@ const PostCard = ({ post, onLike, onComment, onShare, onDelete }) => {
         )}
 
         {/* Post Actions */}
-        <div className="flex items-center justify-between pt-4 border-t border-white/10">
-          <div className="flex items-center space-x-6">
+        <motion.div 
+          layout
+          className="flex items-center justify-between pt-4 border-t border-white/10"
+        >
+          <div className="flex items-center gap-3">
             {/* Like Button */}
             <motion.button
-              whileTap={{ scale: 0.9 }}
+              whileTap={{ scale: 0.85 }}
+              whileHover={{ scale: 1.05 }}
               onClick={handleLike}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-300 ${liked
-                  ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/25'
-                  : 'bg-white/10 text-gray-300 hover:bg-white/20 hover:text-pink-400'
+              className={`group flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 ${liked
+                  ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-lg shadow-pink-500/50'
+                  : 'bg-white/5 text-gray-300 hover:bg-white/10 border border-white/10 hover:border-pink-500/50'
                 }`}
             >
               <motion.div
                 animate={liked ? { scale: [1, 1.3, 1] } : {}}
                 transition={{ duration: 0.3 }}
               >
-                <Heart className={`w-5 h-5 ${liked ? 'fill-white' : ''}`} />
+                <Heart className={`w-5 h-5 transition-all ${liked ? 'fill-white' : 'group-hover:text-pink-400'}`} />
               </motion.div>
-              <span className="font-medium">
-                {post.likes + (liked ? 1 : 0)}
-              </span>
+              <span className="font-semibold text-sm">{post.likes + (liked ? 1 : 0)}</span>
             </motion.button>
 
             {/* Comment Button */}
             <motion.button
-              whileTap={{ scale: 0.9 }}
+              whileTap={{ scale: 0.85 }}
+              whileHover={{ scale: 1.05 }}
               onClick={() => setShowComments(!showComments)}
-              className="flex items-center space-x-2 px-4 py-2 rounded-full bg-white/10 text-gray-300 hover:bg-white/20 hover:text-blue-400 transition-all duration-300"
+              className="group flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 text-gray-300 hover:bg-white/10 border border-white/10 hover:border-blue-500/50 transition-all duration-300"
             >
-              <MessageCircle className="w-5 h-5" />
-              <span className="font-medium">{post.comments?.length || post.comments || 0}</span>
+              <MessageCircle className="w-5 h-5 group-hover:text-blue-400 transition-colors" />
+              <span className="font-semibold text-sm">{post.comments?.length || post.comments || 0}</span>
             </motion.button>
 
             {/* Share Button */}
             <motion.button
-              whileTap={{ scale: 0.9 }}
+              whileTap={{ scale: 0.85 }}
+              whileHover={{ scale: 1.05 }}
               onClick={() => onShare?.(post.id)}
-              className="flex items-center space-x-2 px-4 py-2 rounded-full bg-white/10 text-gray-300 hover:bg-white/20 hover:text-green-400 transition-all duration-300"
+              className="group flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 text-gray-300 hover:bg-white/10 border border-white/10 hover:border-emerald-500/50 transition-all duration-300"
             >
-              <Share className="w-5 h-5" />
-              <span className="font-medium">{post.shares || 0}</span>
+              <Share className="w-5 h-5 group-hover:text-emerald-400 transition-colors" />
+              <span className="font-semibold text-sm">{post.shares || 0}</span>
             </motion.button>
           </div>
 
           {/* Mood indicator */}
           {post.mood && (
-            <div className={`px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${post.mood.vibe === 'fire' ? 'from-red-500 to-orange-500' :
-                post.mood.vibe === 'chill' ? 'from-blue-500 to-cyan-500' :
-                  post.mood.vibe === 'chaos' ? 'from-yellow-400 to-purple-600' :
-                    'from-purple-500 to-pink-500'
-              }`}>
-              {post.mood.vibe} vibes ✨
-            </div>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className={`px-4 py-2 rounded-full text-xs font-bold bg-gradient-to-r backdrop-blur-sm border ${post.mood.vibe === 'fire' ? 'from-red-500/80 to-orange-500/80 border-red-500/50 text-red-100' :
+                  post.mood.vibe === 'chill' ? 'from-blue-500/80 to-cyan-500/80 border-blue-500/50 text-blue-100' :
+                    post.mood.vibe === 'chaos' ? 'from-yellow-400/80 to-purple-600/80 border-yellow-500/50 text-yellow-100' :
+                      'from-purple-500/80 to-pink-500/80 border-purple-500/50 text-purple-100'
+                }`}>
+              <span className="inline-block mr-1">✨</span>{post.mood.vibe}
+            </motion.div>
           )}
-        </div>
+        </motion.div>
 
         {/* Comments Section */}
         <AnimatePresence>
@@ -283,8 +298,10 @@ const PostCard = ({ post, onLike, onComment, onShare, onDelete }) => {
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
+        </GlassCard>
       </div>
-    </GlassCard>
+    </motion.div>
   )
 }
 
