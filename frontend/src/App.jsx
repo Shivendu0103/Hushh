@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './context/AuthContext'
+import { ThemeProvider } from './context/ThemeContext'
 import { SocketProvider } from './context/SocketContext'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import LandingPage from './pages/LandingPage'
@@ -32,8 +33,9 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <SocketProvider>  {/* Wrap with SocketProvider */}
-          <Router>
+        <ThemeProvider>
+          <SocketProvider>
+            <Router>
             <div className="min-h-screen relative bg-transparent">
               <div className="fixed inset-0 z-0 w-full h-screen overflow-hidden pointer-events-none">
                 {/* Background removed as requested */}
@@ -70,8 +72,9 @@ function App() {
                 }}
               />
             </div>
-          </Router>
-        </SocketProvider>  {/* Close SocketProvider */}
+            </Router>
+          </SocketProvider>
+        </ThemeProvider>
       </AuthProvider>
     </QueryClientProvider>
   )
