@@ -20,7 +20,7 @@ const Explore = () => {
     async () => {
       if (!searchQuery.trim()) return []
       const res = await api.get(`/users/search?q=${encodeURIComponent(searchQuery)}`)
-      return res.data || res
+      return res.users || res.data || []
     },
     {
       staleTime: 5000,
@@ -49,10 +49,11 @@ const Explore = () => {
     'trendingUsers',
     async () => {
       const res = await api.get('/users/trending')
-      return res.data || res
+      return res.data || res.users || []
     },
     {
-      staleTime: 30000
+      staleTime: 30000,
+      retry: 1
     }
   )
 

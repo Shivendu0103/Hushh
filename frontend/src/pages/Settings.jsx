@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Bell, Shield, Palette, Music, Zap, User, Moon, Sun } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 import GlassCard from '../components/ui/GlassCard'
 import NeonButton from '../components/ui/NeonButton'
 import LiquidBackground from '../components/ui/LiquidBackground'
 
 const Settings = () => {
   const { user } = useAuth()
+  const { appearance, updateAppearance } = useTheme()
   const [settings, setSettings] = useState({
     notifications: {
       likes: true,
@@ -19,12 +21,6 @@ const Settings = () => {
       profileVisible: true,
       showOnlineStatus: true,
       allowMessages: true
-    },
-    appearance: {
-      theme: 'dark',
-      chaosMode: false,
-      animations: true,
-      glassIntensity: 'medium'
     }
   })
 
@@ -36,6 +32,18 @@ const Settings = () => {
         [key]: value
       }
     }))
+  }
+
+  const handleThemeChange = (newTheme) => {
+    updateAppearance('theme', newTheme)
+  }
+
+  const handleChaosMode = (value) => {
+    updateAppearance('chaosMode', value)
+  }
+
+  const handleAnimations = (value) => {
+    updateAppearance('animations', value)
   }
 
   const ToggleSwitch = ({ enabled, onChange, label }) => (
@@ -142,33 +150,34 @@ const Settings = () => {
         {/* Appearance Section */}
         <SettingsSection icon={Palette} title="Appearance">
           <ToggleSwitch
-            enabled={settings.appearance.chaosMode}
-            onChange={(val) => updateSetting('appearance', 'chaosMode', val)}
+            enabled={appearance.chaosMode}
+            onChange={handleChaosMode}
             label="Chaos Mode"
           />
           <ToggleSwitch
-            enabled={settings.appearance.animations}
-            onChange={(val) => updateSetting('appearance', 'animations', val)}
+            enabled={appearance.animations}
+            onChange={handleAnimations}
             label="Animations"
           />
           <div>
+            <label className="text-white block mb-3 font-medium text-sm">Theme</label>
             <div className="flex gap-2">
-              {['dark', 'neon', 'cosmic'].map((theme) => (
+              {['dark', 'neon', 'cosmic'].map((themeOption) => (
                 <motion.button
-                  key={theme}
+                  key={themeOption}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => updateSetting('appearance', 'theme', theme)}
-                  className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    settings.appearance.theme === theme
+                  onClick={() => handleThemeChange(themeOption)}
+                  className={`flex-1 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                    appearance.theme === themeOption
                       ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/50'
                       : 'bg-white/10 text-gray-300 hover:bg-white/20 border border-white/10'
                   }`}
                 >
-                  {theme === 'dark' && '🌙'}
-                  {theme === 'neon' && '⚡'}
-                  {theme === 'cosmic' && '🌌'}
-                  {' ' + theme}
+                  {themeOption === 'dark' && '🌙'}
+                  {themeOption === 'neon' && '⚡'}
+                  {themeOption === 'cosmic' && '🌌'}
+                  {' ' + themeOption}
                 </motion.button>
               ))}
             </div>

@@ -111,3 +111,79 @@ html, body {
   background: var(--gradient-primary);
   border-radius: 10px;
 }
+
+/* 🎨 THEME VARIATIONS */
+
+/* Dark Theme (Default) */
+:root.theme-dark, :root {
+  --bg-primary: #0f0f23;
+  --bg-secondary: #1a1a2e;
+  --bg-tertiary: #16213e;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0b0;
+  --border-color: rgba(255, 255, 255, 0.1);
+}
+
+html.theme-dark, html {
+  background: linear-gradient(135deg, #0f0f23, #1a1a2e, #16213e);
+}
+
+/* Neon Theme */
+:root.theme-neon {
+  --bg-primary: #0a0a14;
+  --bg-secondary: #0f0f1e;
+  --bg-tertiary: #14141f;
+  --text-primary: #00ffff;
+  --text-secondary: #00ff88;
+  --border-color: rgba(0, 255, 255, 0.3);
+}
+
+html.theme-neon {
+  background: linear-gradient(135deg, #0a0a14 0%, #1a0033 50%, #0a1a14 100%);
+  color: #00ffff;
+}
+
+html.theme-neon .neon-text {
+  color: #00ffff;
+  text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+}
+
+/* Cosmic Theme */
+:root.theme-cosmic {
+  --bg-primary: #0d0221;
+  --bg-secondary: #1a0a2e;
+  --bg-tertiary: #16213e;
+  --text-primary: #e0c3fc;
+  --text-secondary: #a98cd4;
+  --border-color: rgba(224, 195, 252, 0.2);
+}
+
+html.theme-cosmic {
+  background: linear-gradient(135deg, #0d0221 0%, #1a0a2e 50%, #16213e 100%);
+  color: #e0c3fc;
+}
+
+html.theme-cosmic .neon-text {
+  background: linear-gradient(135deg, #e0c3fc, #a98cd4, #8f7cf4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Chaos Mode */
+html.chaos-mode {
+  animation: chaosMode 0.1s infinite;
+}
+
+@keyframes chaosMode {
+  0%, 100% { filter: hue-rotate(0deg) brightness(1); }
+  25% { filter: hue-rotate(10deg) brightness(1.1); }
+  50% { filter: hue-rotate(20deg) brightness(0.9); }
+  75% { filter: hue-rotate(-10deg) brightness(1.05); }
+}
+
+/* Disable animations */
+html[style*="--animations-disabled"] * {
+  animation: none !important;
+  transition: none !important;
+}

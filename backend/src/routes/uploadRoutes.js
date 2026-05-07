@@ -6,15 +6,23 @@ const router = express.Router()
 
 // @desc    Upload post media (images/videos)
 // @route   POST /api/upload/post
-router.post('/post', protect, upload.post.array('media', 5), (req, res) => {
+router.post('/post', protect, (req, res, next) => {
+  upload.post.array('media', 5)(req, res, (err) => {
+    if (err) {
+      console.error('[v0] Upload middleware error:', err)
+      return res.status(400).json({ success: false, message: err.message || 'Upload failed' })
+    }
+    next()
+  })
+}, (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ success: false, message: 'No media uploaded' })
     }
 
     const uploadedMedia = req.files.map((file) => ({
-      url: file.path,
-      type: file.mimetype.startsWith('video/') ? 'video' : 'image',
+      url: file.path || file.secure_url,
+      type: file.mimetype?.startsWith('video/') ? 'video' : 'image',
     }))
 
     res.status(200).json({
@@ -22,8 +30,8 @@ router.post('/post', protect, upload.post.array('media', 5), (req, res) => {
       media: uploadedMedia,
     })
   } catch (error) {
-    console.error('Post media upload error:', error)
-    res.status(500).json({ success: false, message: 'Media upload failed' })
+    console.error('[v0] Post media upload error:', error)
+    res.status(500).json({ success: false, message: 'Media upload failed: ' + error.message })
   }
 })
 
@@ -47,20 +55,31 @@ router.post('/avatar', protect, upload.avatar.single('avatar'), (req, res) => {
 
 // @desc    Upload story media
 // @route   POST /api/upload/story
-router.post('/story', protect, upload.post.single('story'), (req, res) => {
+router.post('/story', protect, (req, res, next) => {
+  upload.post.single('story')(req, res, (err) => {
+    if (err) {
+      console.error('[v0] Story upload middleware error:', err)
+      return res.status(400).json({ success: false, message: err.message || 'Upload failed' })
+    }
+    next()
+  })
+}, (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'No media uploaded' })
     }
 
+    const mediaUrl = req.file.path || req.file.secure_url
+    const mediaType = req.file.mimetype?.startsWith('video/') ? 'video' : 'image'
+    
     res.status(200).json({
       success: true,
-      mediaUrl: req.file.path,
-      mediaType: req.file.mimetype.startsWith('video/') ? 'video' : 'image',
+      mediaUrl,
+      mediaType,
     })
   } catch (error) {
-    console.error('Story upload error:', error)
-    res.status(500).json({ success: false, message: 'Story upload failed' })
+    console.error('[v0] Story upload error:', error)
+    res.status(500).json({ success: false, message: 'Story upload failed: ' + error.message })
   }
 })
 
